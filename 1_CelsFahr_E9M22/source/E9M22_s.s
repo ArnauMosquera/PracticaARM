@@ -112,11 +112,16 @@ E9M22_add_s:
 @;		R0 		-> valor E9M22 de (num1 - num2).
 	.global E9M22_sub_s
 E9M22_sub_s:
-		push {lr}
+    push {lr}
 
-		ldr r0, =E9M22_sNAN		@; to-do: NaN per indicar rutina pendent
-		
-		pop {pc}
+    push {r0}             @ guardar num1
+    mov r0, r1            @ r0 = num2
+    bl E9M22_neg          @ r0 = -num2
+    mov r1, r0            @ r1 = -num2
+    pop {r0}              @ r0 = num1
+    bl E9M22_add          @ r0 = num1 + (-num2)
+
+    pop {pc}
 
 
 
@@ -179,11 +184,12 @@ E9M22_neg_s:
 @;		R0 		-> valor absolut E9M22 de num.
 	.global E9M22_abs_s
 E9M22_abs_s:
-		push {lr}
+    push {lr}
 
-		ldr r0, =E9M22_sNAN		@; to-do: NaN per indicar rutina pendent
-		
-		pop {pc}
+    ldr r1, =0x7FFFFFFF   @ màscara: tots els bits a 1 excepte el de signe
+    and r0, r0, r1        @ netegem el bit de signe
+
+    pop {pc}
 
 
 
@@ -200,11 +206,13 @@ E9M22_abs_s:
 @;		R0 		-> retorna un valor no-zero si num1 == num2.
 	.global E9M22_are_eq_s
 E9M22_are_eq_s:
-		push {lr}
+    push {lr}
 
-		mov r0, #0		@; to-do: sempre fals per indicar rutina pendent
-		
-		pop {pc}
+    cmp r0, r1
+    moveq r0, #1    @ iguals → 1
+    movne r0, #0    @ diferents → 0
+
+    pop {pc}
 
 
 
@@ -251,11 +259,13 @@ E9M22_are_unordered_s:
 @;		R0 		-> retorna un valor no-zero si num1 > num2.
 	.global E9M22_is_gt_s
 E9M22_is_gt_s:
-		push {lr}
+    push {lr}
 
-		mov r0, #0		@; to-do: sempre fals per indicar rutina pendent
-		
-		pop {pc}
+    cmp r0, r1
+    movgt r0, #1
+    movle r0, #0
+
+    pop {pc}
 
 
 
@@ -285,11 +295,14 @@ E9M22_is_ge_s:
 @;		R0 		-> retorna un valor no-zero si num1 < num2.
 	.global E9M22_is_lt_s
 E9M22_is_lt_s:
-		push {lr}
+    push {lr}
 
-		mov r0, #0		@; to-do: sempre fals per indicar rutina pendent
-		
-		pop {pc}
+    cmp r0, r1
+    movlt r0, #1
+    movge r0, #0
+
+    pop {pc}
+
 
 
 
