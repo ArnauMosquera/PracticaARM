@@ -1,1 +1,59 @@
+---------------------------------------
+PREGUNTES ENTREVISTA - FASE 2 (GeoTemp)
+---------------------------------------
+
+🧠 TEORIA BÀSICA
+
+1. Què és el format E9M22?
+   → És un format personalitzat de coma flotant de 32 bits amb 9 bits per a l’exponent i 22 per a la mantissa. S’utilitza per evitar dependència directa del tipus float d’ARM.
+
+2. Quina diferència hi ha entre float i E9M22_t?
+   → Tots dos són valors en coma flotant de 32 bits, però float segueix l’estàndard IEEE-754 i E9M22_t utilitza un format personalitzat (E9M22) per estudiar i controlar el comportament a baix nivell.
+
+3. Què representa l’estructura maxmin_t?
+   → Una estructura amb 6 camps que guarda:
+      - Temperatura mínima i màxima en Celsius
+      - Temperatura mínima i màxima en Fahrenheit
+      - Índexs de posició de la mínima i màxima
+
+4. Per què cal dividir per 12 a avgmaxmin_city()?
+   → Perquè calculem la mitjana de 12 valors mensuals. Dividim la suma de les temperatures entre 12.
+
+---------------------------------------
+
+🔍 Codi ASM
+
+5. Com accedeixes a ttemp[id_city][i] en ASM?
+   → Multipliquem id_city × 48 (ja que hi ha 12 columnes de 4 bytes), després sumem i × 4 (offset columna). El resultat és una adreça de 32 bits que conté la temperatura E9M22.
+
+6. Com compares dos valors E9M22 en ASM?
+   → Utilitzem les rutines `E9M22_is_gt`, `E9M22_is_lt` i `E9M22_are_eq`. Retornen 1 si la comparació és certa, 0 si no.
+
+7. Quins registres fas servir i per a què?
+   → Registres usats habitualment:
+      r4 = i (índex del bucle)
+      r5 = avg (acumulador)
+      r6 = max
+      r7 = min
+      r8 = tvar (valor temporal)
+      r9 = idmax
+      r10 = idmin
+      r0–r3 = paràmetres i retorns de funcions
+
+8. Com escrius resultats a mmres?
+   → Amb `str` (per valors de 32 bits) i `strh` (per unsigned short). Utilitzem els desplaçaments `MM_TMINC`, `MM_TMAXF`, etc., definits a `avgmaxmintemp.i`.
+
+---------------------------------------
+
+🛠️ Execució i proves
+
+9. Com proves que la teva funció funciona?
+   → Executo `make debug`, poso un breakpoint a `main` o al test, i executo:
+        p /x percentatge_success
+     Si és ≥ 0x46 (70%), vol dir que està aprovat.
+
+10. Com detectes si la funció falla?
+    → Si retorna `NaN` (0x7FA00000), o el percentatge és molt baix. També puc mirar les variables a Insight i comparar els resultats.
+
+---------------------------------------
 
