@@ -39,8 +39,8 @@ int_to_E9M22	=	int_to_E9M22_c	@; Versió en C
 @;E9M22_add	=	E9M22_add_c	@; Versió en C
 E9M22_add	=	E9M22_add_s	@; Versió assemblador
 
-E9M22_sub	=	E9M22_sub_c	@; Versió en C
-@;E9M22_sub	=	E9M22_sub_s	@; Versió assemblador
+@;E9M22_sub	=	E9M22_sub_c	@; Versió en C
+E9M22_sub	=	E9M22_sub_s	@; Versió assemblador
 
 E9M22_mul	=	E9M22_mul_c	@; Versió en C
 @;E9M22_mul	=	E9M22_mul_s	@; Versió assemblador
@@ -48,8 +48,8 @@ E9M22_mul	=	E9M22_mul_c	@; Versió en C
 E9M22_div	=	E9M22_div_c	@; Versió en C
 @;E9M22_div	=	E9M22_div_s	@; Versió assemblador
 
-E9M22_neg	=	E9M22_neg_c	@; Versió en C
-@;E9M22_neg	=	E9M22_neg_s	@; Versió assemblador
+@;E9M22_neg	=	E9M22_neg_c	@; Versió en C
+E9M22_neg	=	E9M22_neg_s	@; Versió assemblador
 
 E9M22_abs	=	E9M22_abs_c	@; Versió en C
 @;E9M22_abs	=	E9M22_abs_s	@; Versió assemblador
