@@ -37,25 +37,90 @@
 @;		R0			→	temperatura mitjana, expressada en graus Celsius, en format E9M22.		
         .global avgmaxmin_city
 avgmaxmin_city:
-        push {r1-r2, lr}		@; Salvar registres modificats i adreça retorn
+    push {r4-r10, lr}
 
-            @; codi "FAKE": CAL SUBSTITUIR-LO!!! per la traducció a assemblador de la rutina en C
+    mov r4, #1              @ i = 1
+    mov r9, #0              @ idmax = 0
+    mov r10, #0             @ idmin = 0
 
-        ldr r1, =E9M22_sNAN		@; Signaling NaN per indicar rutina pendent d'implementació
-        str r1, [r3, #MM_TMINC]		@; mmres->tmin_C = NaN
-        str r1, [r3, #MM_TMAXC]		@; mmres->tmax_C = NaN
-        str r1, [r3, #MM_TMINF]		@; mmres->tmin_F = NaN
-        str r1, [r3, #MM_TMAXF]		@; mmres->tmax_F = NaN
-        mov r2, #-1				@; Valor id fictici per indicar pendent implementació
-        strh r2, [r3, #MM_IDMIN]	@; mmres->id_min = -1
-        strh r2, [r3, #MM_IDMAX]	@; mmres->id_max = -1
+    mov r5, r2              @ r5 = id_city
+    mov r6, #0              @ offset = 0
+    mov r7, #0              @ columna = 0
 
-        mov r0, r1				@; return (NaN)	→ per indicar pendent implementació
+    @ accedir a ttemp[id_city][0] → base = R0 + id_city * 48 (12×4)
+    mov r8, #48
+    mul r5, r5, r8
+    add r8, r0, r5
+    ldr r5, [r8]            @ r5 = avg
+    mov r6, r5              @ max = avg
+    mov r7, r5              @ min = avg
 
-        pop {r1-r2, pc}			@; restaurar registres modificats i retornar
+loop_city:
+    cmp r4, #12
+    beq end_loop_city
 
+    @ calcular ttemp[id_city][i] = base + i×4
+    mov r8, r4
+    lsl r8, r8, #2
+    add r8, r8, r0
+    add r8, r8, r5
+    ldr r8, [r8]            @ tvar = ttemp[id_city][i]
 
+    mov r0, r5              @ avg
+    mov r1, r8              @ tvar
+    bl E9M22_add
+    mov r5, r0              @ avg = avg + tvar
 
+    mov r0, r8              @ tvar
+    mov r1, r6              @ max
+    bl E9M22_is_gt
+    cmp r0, #0
+    beq check_min_city
+    mov r6, r8              @ max = tvar
+    mov r9, r4              @ idmax = i
+
+check_min_city:
+    mov r0, r8              @ tvar
+    mov r1, r7              @ min
+    bl E9M22_is_lt
+    cmp r0, #0
+    beq next_city
+    mov r7, r8              @ min = tvar
+    mov r10, r4             @ idmin = i
+
+next_city:
+    add r4, r4, #1
+    b loop_city
+
+end_loop_city:
+    ldr r1, =0x40A00000     @ 12.0 en E9M22
+    mov r0, r5              @ avg
+    bl E9M22_div
+    mov r5, r0              @ avg = avg / 12
+
+    @ mmres->tmin_C = min
+    str r7, [r3, #MM_TMINC]
+    @ mmres->tmax_C = max
+    str r6, [r3, #MM_TMAXC]
+
+    @ mmres->tmin_F = Celsius2Fahrenheit(min)
+    mov r0, r7
+    bl Celsius2Fahrenheit
+    str r0, [r3, #MM_TMINF]
+
+    @ mmres->tmax_F = Celsius2Fahrenheit(max)
+    mov r0, r6
+    bl Celsius2Fahrenheit
+    str r0, [r3, #MM_TMAXF]
+
+    @ mmres->id_min = idmin
+    strh r10, [r3, #MM_IDMIN]
+    @ mmres->id_max = idmax
+    strh r9, [r3, #MM_IDMAX]
+
+    mov r0, r5              @ return avg
+    pop {r4-r10, pc}
+    
 @; avgmaxmin_month(): calcula la temperatura mitjana, màxima i mínima 
 @;				d'un mes d'una taula de temperatures, 
 @;				amb una fila per ciutat i una columna per mes, 
@@ -68,26 +133,81 @@ avgmaxmin_city:
 @;						resultats de temperatures màximes i mínimes
 @;	Sortida:
 @;		R0			→	temperatura mitjana, expressada en graus Celsius, en format E9M22.		
-        .global avgmaxmin_month
+.global avgmaxmin_month
 avgmaxmin_month:
-        push {r1-r2, lr}		@; Salvar registres modificats i adreça retorn
+    push {r4-r10, lr}
 
-            @; codi "FAKE": CAL SUBSTITUIR-LO!!! per la traducció a assemblador de la rutina en C
+    mov r4, #1              @ i = 1
+    mov r9, #0              @ idmax = 0
+    mov r10, #0             @ idmin = 0
 
-        ldr r1, =E9M22_sNAN		@; Signaling NaN per indicar rutina pendent d'implementació
-        str r1, [r3, #MM_TMINC]		@; mmres->tmin_C = NaN
-        str r1, [r3, #MM_TMAXC]		@; mmres->tmax_C = NaN
-        str r1, [r3, #MM_TMINF]		@; mmres->tmin_F = NaN
-        str r1, [r3, #MM_TMAXF]		@; mmres->tmax_F = NaN
-        mov r2, #-1				@; Valor id fictici per indicar pendent implementació
-        strh r2, [r3, #MM_IDMIN]	@; mmres->id_min = -1
-        strh r2, [r3, #MM_IDMAX]	@; mmres->id_max = -1
+    mov r5, #48             @ files de 12×4 = 48 bytes
+    mov r6, r0              @ base = ttemp
+    lsl r7, r2, #2          @ offset = id_month × 4
+    add r6, r6, r7
+    ldr r5, [r6]            @ avg = ttemp[0][id_month]
+    mov r6, r5              @ max = avg
+    mov r7, r5              @ min = avg
 
-        mov r0, r1				@; return (NaN)	→ per indicar pendent implementació
+loop_month:
+    cmp r4, r1              @ i < nrows
+    bge end_loop_month
 
-        pop {r1-r2, pc}			@; restaurar registres modificats i retornar
+    mov r8, r4
+    mul r8, r8, #48         @ offset fila = i * 48
+    add r8, r0, r8
+    add r8, r8, r7          @ offset columna
+    ldr r8, [r8]            @ tvar = ttemp[i][id_month]
 
+    mov r0, r5              @ avg
+    mov r1, r8              @ tvar
+    bl E9M22_add
+    mov r5, r0              @ avg += tvar
 
+    mov r0, r8              @ tvar
+    mov r1, r6              @ max
+    bl E9M22_is_gt
+    cmp r0, #0
+    beq check_min_month
+    mov r6, r8              @ max = tvar
+    mov r9, r4              @ idmax = i
 
-.end
+check_min_month:
+    mov r0, r8              @ tvar
+    mov r1, r7              @ min
+    bl E9M22_is_lt
+    cmp r0, #0
+    beq next_month
+    mov r7, r8              @ min = tvar
+    mov r10, r4             @ idmin = i
+
+next_month:
+    add r4, r4, #1
+    b loop_month
+
+end_loop_month:
+    mov r0, r1              @ nrows
+    bl int_to_E9M22
+    mov r1, r0              @ divisor
+    mov r0, r5              @ avg
+    bl E9M22_div
+    mov r5, r0              @ avg /= nrows
+
+    str r7, [r3, #MM_TMINC]
+    str r6, [r3, #MM_TMAXC]
+
+    mov r0, r7
+    bl Celsius2Fahrenheit
+    str r0, [r3, #MM_TMINF]
+
+    mov r0, r6
+    bl Celsius2Fahrenheit
+    str r0, [r3, #MM_TMAXF]
+
+    strh r10, [r3, #MM_IDMIN]
+    strh r9, [r3, #MM_IDMAX]
+
+    mov r0, r5
+    pop {r4-r10, pc}
+
 
