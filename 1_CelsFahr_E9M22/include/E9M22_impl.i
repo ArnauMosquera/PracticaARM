@@ -36,8 +36,8 @@ int_to_E9M22	=	int_to_E9M22_c	@; Versió en C
 @;* Operacions ARITMÈTIQUES en Coma Flotant E9M22 *
 @;*************************************************
 
-E9M22_add	=	E9M22_add_c	@; Versió en C
-@;E9M22_add	=	E9M22_add_s	@; Versió assemblador
+@;E9M22_add	=	E9M22_add_c	@; Versió en C
+E9M22_add	=	E9M22_add_s	@; Versió assemblador
 
 E9M22_sub	=	E9M22_sub_c	@; Versió en C
 @;E9M22_sub	=	E9M22_sub_s	@; Versió assemblador
