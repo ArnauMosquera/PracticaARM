@@ -13,23 +13,19 @@
 **Durada:** 2:30  
 **Enfocament:** Explicació de `Celsius2Fahrenheit` i `Fahrenheit2Celsius`, demo i resultats
 
-#### 🔹 Estructura del vídeo:
+#### 🔹 Text a dir:
 
-1. **Intro (0:00–0:20)**  
-   Presentació personal + resum objectiu
+"Hola! Em dic [Nom] i aquest és el meu vídeo de la Fase 1 de la pràctica ARM. En aquesta fase hem fet la conversió entre Celsius i Fahrenheit utilitzant el format de coma flotant E9M22.
 
-2. **Explicació del codi ASM (0:20–1:10)**  
-   - Operació `(input * 9/5) + 32`
-   - Constants definides amb `.word`
-   - Crida a `E9M22_mul` i `E9M22_add`
+He implementat les funcions `Celsius2Fahrenheit` i `Fahrenheit2Celsius`. La primera fa la operació `(input * 9/5) + 32`, i la segona és `((input - 32) * 5/9)`. Les constants com 9/5 i 32.0 estan codificades en E9M22 en la secció .data.
 
-3. **Execució i comprovació (1:10–2:10)**  
-   - Mostrar `demo_CelsFahr.s`
-   - Executar `make debug` i `p /x temp1F`
-   - Verificar que el resultat és correcte
+Les operacions com multiplicació i suma les fem cridant les rutines `E9M22_mul`, `E9M22_add`, etc. Ho fem tot en llenguatge ensamblador ARM (GAS).
 
-4. **Tancament (2:10–2:30)**  
-   Breu reflexió sobre l’aprenentatge
+Ara us ensenyo el fitxer demo, `demo_CelsFahr.s`, on cridem aquestes funcions amb valors reals. En executar el programa amb GDB, podem veure que `temp1F` és 95.3780 °F, que és el valor esperat.
+
+Aquest exercici m'ha ajudat molt a entendre com es criden funcions i es treballa amb valors codificats en ensamblador.
+
+Moltes gràcies."
 
 ---
 
@@ -38,22 +34,19 @@
 **Durada:** 2:30  
 **Enfocament:** Implementació de rutines com `neg`, `abs`, `sub`, `are_eq`, etc.
 
-#### 🔹 Estructura del vídeo:
+#### 🔹 Text a dir:
 
-1. **Intro (0:00–0:20)**  
-   Presentació i introducció
+"Hola, em dic [Nom] i en aquest vídeo us explicaré les rutines que hem implementat per operar amb nombres en format E9M22.
 
-2. **Explicació codi (`E9M22_s.s`) (0:20–1:40)**  
-   - `E9M22_neg_s` amb XOR
-   - `E9M22_abs_s` amb AND
-   - `E9M22_sub_s` amb neg + add
-   - Comparacions simples amb `cmp`
+He programat les rutines `E9M22_neg_s`, que fa una XOR amb 0x80000000 per canviar el signe, i `E9M22_abs_s`, que fa una AND amb 0x7FFFFFFF per eliminar el bit de signe.
 
-3. **Test de funcionament (1:40–2:10)**  
-   - Percentatge d’èxit a `gdb`
+També he fet `E9M22_sub_s`, que fa la negació del segon operand i suma, i `E9M22_are_eq_s`, que compara dos valors amb `cmp` i retorna 1 si són iguals.
 
-4. **Tancament (2:10–2:30)**  
-   Conclusions sobre treball amb bits
+Aquestes funcions estan escrites al fitxer `E9M22_s.s`, i les he integrat al sistema mitjançant els fitxers `E9M22_impl.h` i `.i`, substituint les versions en C.
+
+Quan he executat els tests amb GDB, he comprovat que el percentatge d'èxit era del 100%. Això indica que les funcions ASM estan ben implementades.
+
+Ha estat una bona manera d'aprendre a manipular bits i fer operacions bàsiques sense float."
 
 ---
 
@@ -64,21 +57,17 @@
 **Durada:** 2:30  
 **Enfocament:** Recórrer una fila de la matriu i calcular mitjana, mínim i màxim
 
-#### 🔹 Estructura del vídeo:
+#### 🔹 Text a dir:
 
-1. **Intro (0:00–0:20)**  
-   Presentació + funció que explicaràs
+"Hola, soc [Nom] i aquest és el meu vídeo de la Fase 2 de la pràctica. En aquesta part he treballat amb la funció `avgmaxmin_city`, que calcula la temperatura mitjana, màxima i mínima per una ciutat concreta.
 
-2. **Descripció de la funció (0:20–1:40)**  
-   - Com accedir a `ttemp[id_city][i]`
-   - Ús de `E9M22_add`, `is_gt`, `is_lt`
-   - Càlcul de mitjana (`div per 12`)
+El paràmetre `id_city` serveix per seleccionar la fila de la matriu `ttemp`, i recorrem totes les columnes (els 12 mesos) amb un bucle. A cada iteració sumem la temperatura al `avg`, i actualitzem `max` i `min` si cal.
 
-3. **Assignació a estructura `mmres` (1:40–2:10)**  
-   - Ús de `str`, `strh` amb `MM_...`
+Les comparacions es fan amb les funcions `E9M22_is_gt` i `E9M22_is_lt`. Després de sumar, dividim per 12 amb `E9M22_div`.
 
-4. **Tancament (2:10–2:30)**  
-   Aprenentatge sobre matrius i ASM
+Finalment, guardem els valors a l'estructura `mmres` usant `str` per als floats i `strh` per als índexs. Els desplaçaments estan definits a `avgmaxmintemp.i`.
+
+He provat el funcionament amb els tests oficials i funciona correctament."
 
 ---
 
@@ -87,30 +76,23 @@
 **Durada:** 2:30  
 **Enfocament:** Recórrer una columna de la matriu (mes)
 
-#### 🔹 Estructura del vídeo:
+#### 🔹 Text a dir:
 
-1. **Intro (0:00–0:20)**  
-   Presentació + resum de la funció
+"Hola, soc [Nom], i en aquest vídeo explicaré la rutina `avgmaxmin_month`, que també forma part de la Fase 2.
 
-2. **Descripció de bucle per files (0:20–1:30)**  
-   - Accés a `ttemp[i][id_month]`
-   - Multiplicació per 48, desplaçament de columnes
+Aquesta funció calcula les temperatures mitjana, màxima i mínima per a un mes concret. Per fer-ho, recorro totes les files de la matriu, és a dir, cada ciutat, i accedeixo a la columna `id_month`.
 
-3. **Comparacions i càlcul (1:30–2:10)**  
-   - `E9M22_add`, `div` amb `int_to_E9M22(nrows)`
-   - Guardar resultats amb `str` i `strh`
+El codi calcula `offset = i * 48 + id_month * 4`, i llegeix la temperatura. Cada valor s'acumula a `avg` i es compara amb `max` i `min`.
 
-4. **Tancament (2:10–2:30)**  
-   Comentari final sobre comprensió de matrius en ASM
+Dividim entre el nombre de files (`nrows`) convertit a E9M22 amb `int_to_E9M22`. Guardem els resultats a `mmres` igual que abans.
+
+He verificat els resultats amb GDB, i el percentatge d'èxit és correcte. Aquesta funció mostra com es pot accedir a matrius bidimensionals en ASM."
 
 ---
 
-## 🛠️ Recomanacions generals
+## 💪 Recomanacions
 
-- Mostra el codi mentre parles
-- Usa `Insight` o `GDB` per demostrar els resultats
-- No sobrepassis els 2:30 minuts
-- Sigues clar, breu i segur
-
----
-
+- Grava amb OBS o qualsevol capturador
+- Mostra codi + resultat a Insight/GDB
+- Fes servir una veu clara i mostra el teu entès del codi
+- No passis de 2:30 minuts
