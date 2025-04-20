@@ -162,11 +162,12 @@ E9M22_div_s:
 @;		R0 		-> valor E9M22 negat de num.
 	.global E9M22_neg_s
 E9M22_neg_s:
-		push {lr}
-
-		ldr r0, =E9M22_sNAN		@; to-do: NaN per indicar rutina pendent
-		
-		pop {pc}
+    push {lr}
+    
+    ldr r1, =0x80000000     @ màscara del bit de signe (bit 31)
+    eor r0, r0, r1          @ XOR per canviar el signe
+    
+    pop {pc}
 
 
 
