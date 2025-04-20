@@ -5,8 +5,8 @@
 @;	pere.millan@urv.cat
 @;	(Març 2021-2023, Febrer 2024, Març 2025)
 @;-----------------------------------------------------------------------
-@;	Programador/a 1: xxx.xxx@estudiants.urv.cat
-@;	Programador/a 2: yyy.yyy@estudiants.urv.cat
+@;	Programador/a 1: albert.marti@estudiants.urv.cat
+@;	Programador/a 2: arnau.mosquera@estudiants.urv.cat
 @;-----------------------------------------------------------------------
 
 .include "E9M22.i"
