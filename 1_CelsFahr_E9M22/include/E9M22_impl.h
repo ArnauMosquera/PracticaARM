@@ -40,8 +40,8 @@
 /* Operacions ARITMÈTIQUES en Coma Flotant E9M22 */
 /*************************************************/
 
-//#define E9M22_add	E9M22_add_c_	// Versió en C
-#define E9M22_add	E9M22_add_s	// Versió assemblador
+#define E9M22_add	E9M22_add_c_	// Versió en C
+//#define E9M22_add	E9M22_add_s	// Versió assemblador
 
 //#define E9M22_sub	E9M22_sub_c_	// Versió en C
 #define E9M22_sub	E9M22_sub_s	// Versió assemblador
@@ -63,8 +63,8 @@
 /* Operacions de COMPARACIÓ de números en Coma Flotant E9M22 */
 /*************************************************************/
 
-#define E9M22_are_eq	E9M22_are_eq_c_	// Versió en C
-//#define E9M22_are_eq	E9M22_are_eq_s	// Versió assemblador
+//#define E9M22_are_eq	E9M22_are_eq_c_	// Versió en C
+#define E9M22_are_eq	E9M22_are_eq_s	// Versió assemblador
 
 #define E9M22_are_ne	E9M22_are_ne_c_	// Versió en C
 //#define E9M22_are_ne	E9M22_are_ne_s	// Versió assemblador
@@ -72,14 +72,14 @@
 #define E9M22_are_unordered		E9M22_are_unordered_c_	// Versió en C
 //#define E9M22_are_unordered	E9M22_are_unordered_s	// Versió assemblador
 
-#define E9M22_is_gt		E9M22_is_gt_c_	// Versió en C
-//#define E9M22_is_gt	E9M22_is_gt_s	// Versió assemblador
+//#define E9M22_is_gt		E9M22_is_gt_c_	// Versió en C
+#define E9M22_is_gt	E9M22_is_gt_s	// Versió assemblador
 
 #define E9M22_is_ge		E9M22_is_ge_c_	// Versió en C
 //#define E9M22_is_ge	E9M22_is_ge_s	// Versió assemblador
 
-#define E9M22_is_lt		E9M22_is_lt_c_	// Versió en C
-//#define E9M22_is_lt	E9M22_is_lt_s	// Versió assemblador
+//#define E9M22_is_lt		E9M22_is_lt_c_	// Versió en C
+#define E9M22_is_lt	E9M22_is_lt_s	// Versió assemblador
 
 #define E9M22_is_le		E9M22_is_le_c_	// Versió en C
 //#define E9M22_is_le	E9M22_is_le_s	// Versió assemblador
