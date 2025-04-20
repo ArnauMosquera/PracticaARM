@@ -80,11 +80,11 @@ build/test_CelsiusFahrenheit.o : tests/test_CelsiusFahrenheit.c include/E9M22.h 
 	arm-none-eabi-gcc $(CCFLAGS) -c tests/test_CelsiusFahrenheit.c -o build/test_CelsiusFahrenheit.o
 
 
-test_E9M22.elf : build/test_E9M22.o libE9M22.a
-	arm-none-eabi-ld $(LDFLAGS) build/test_E9M22.o p_lib/startup.o libE9M22.a p_lib/libfoncompus.a -o test_E9M22.elf
+test_E9M22.elf : build/test_E9M22.o build/E9M22_c.o build/E9M22_s.o libE9M22.a
+	arm-none-eabi-ld $(LDFLAGS) build/test_E9M22.o build/E9M22_c.o build/E9M22_s.o p_lib/startup.o \
+					libE9M22.a p_lib/libfoncompus.a -o test_E9M22.elf
 
-
-build/test_E9M22.o : tests/test_E9M22.c include/E9M22.h include/E9M22_impl.h
+build/test_E9M22.o : tests/test_E9M22.c include/E9M22.h include/E9M22_impl.h include/CelsiusFahrenheit.h
 	arm-none-eabi-gcc $(CCFLAGS) -c tests/test_E9M22.c -o build/test_E9M22.o
 
 
@@ -96,19 +96,17 @@ clean :
 	@rm -fv *.elf
 	@rm -fv libE9M22.a
 
-
 #-----------------------------------------------------------------------------
 # run commands
 #-----------------------------------------------------------------------------
-run : demo_pi.elf	demo_CelsFahr.elf	demo_E9M22.elf
-	arm-eabi-insight demo_pi.elf &
-	# arm-eabi-insight demo_CelsFahr.elf &
-	# arm-eabi-insight demo_E9M22.elf &
-
+run: demo_pi.elf demo_CelsFahr.elf demo_E9M22.elf
+	@echo "Executa manualment amb:"
+	@echo "  qemu-arm demo_pi.elf"
+	@echo "  qemu-arm demo_CelsFahr.elf"
 
 #-----------------------------------------------------------------------------
 # debug commands
 #-----------------------------------------------------------------------------
-debug : test_CelsiusFahrenheit.elf	test_E9M22.elf 
-	# arm-eabi-insight test_CelsiusFahrenheit.elf &
-	# arm-eabi-insight test_E9M22.elf &
+debug: test_CelsiusFahrenheit.elf test_E9M22.elf 	
+	@echo "Depura amb:"
+	@echo "  qemu-arm -g 1234 test_CelsiusFahrenheit.elf & arm-none-eabi-gdb test_CelsiusFahrenheit.elf"
