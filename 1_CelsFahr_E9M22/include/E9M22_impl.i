@@ -5,8 +5,8 @@
 @;	pere.millan@urv.cat
 @;	(Març 2025)
 @;----------------------------------------------------------------
-@;	Programador/a 1: xxx.xxx@estudiants.urv.cat
-@;	Programador/a 2: yyy.yyy@estudiants.urv.cat
+@;Programador/a 1: albert.marti@estudiants.urv.cat
+@;Programador/a 2: arnau.mosquera@estudiants.urv.cat
 @;----------------------------------------------------------------
 
 
@@ -39,8 +39,8 @@ int_to_E9M22	=	int_to_E9M22_c	@; Versió en C
 E9M22_add	=	E9M22_add_c	@; Versió en C
 @;E9M22_add	=	E9M22_add_s	@; Versió assemblador
 
-@;E9M22_sub	=	E9M22_sub_c	@; Versió en C
-E9M22_sub	=	E9M22_sub_s	@; Versió assemblador
+E9M22_sub	=	E9M22_sub_c	@; Versió en C
+@;E9M22_sub	=	E9M22_sub_s	@; Versió assemblador
 
 E9M22_mul	=	E9M22_mul_c	@; Versió en C
 @;E9M22_mul	=	E9M22_mul_s	@; Versió assemblador
@@ -48,11 +48,11 @@ E9M22_mul	=	E9M22_mul_c	@; Versió en C
 E9M22_div	=	E9M22_div_c	@; Versió en C
 @;E9M22_div	=	E9M22_div_s	@; Versió assemblador
 
-@;E9M22_neg	=	E9M22_neg_c	@; Versió en C
-E9M22_neg	=	E9M22_neg_s	@; Versió assemblador
+E9M22_neg	=	E9M22_neg_c	@; Versió en C
+@;E9M22_neg	=	E9M22_neg_s	@; Versió assemblador
 
-@;E9M22_abs	=	E9M22_abs_c	@; Versió en C
-E9M22_abs	=	E9M22_abs_s	@; Versió assemblador
+E9M22_abs	=	E9M22_abs_c	@; Versió en C
+@;E9M22_abs	=	E9M22_abs_s	@; Versió assemblador
 
 
 @;*************************************************************
@@ -68,14 +68,14 @@ E9M22_are_ne	=	E9M22_are_ne_c	@; Versió en C
 E9M22_are_unordered	=		E9M22_are_unordered_c	@; Versió en C
 @;E9M22_are_unordered	=	E9M22_are_unordered_s	@; Versió assemblador
 
-@;E9M22_is_gt	=		E9M22_is_gt_c	@; Versió en C
-E9M22_is_gt	=	E9M22_is_gt_s	@; Versió assemblador
+E9M22_is_gt	=		E9M22_is_gt_c	@; Versió en C
+@;E9M22_is_gt	=	E9M22_is_gt_s	@; Versió assemblador
 
 E9M22_is_ge	=		E9M22_is_ge_c	@; Versió en C
 @;E9M22_is_ge	=	E9M22_is_ge_s	@; Versió assemblador
 
-@;E9M22_is_lt	=		E9M22_is_lt_c	@; Versió en C
-E9M22_is_lt	=	E9M22_is_lt_s	@; Versió assemblador
+E9M22_is_lt	=		E9M22_is_lt_c	@; Versió en C
+@;E9M22_is_lt	=	E9M22_is_lt_s	@; Versió assemblador
 
 E9M22_is_le	=		E9M22_is_le_c	@; Versió en C
 @;E9M22_is_le	=	E9M22_is_le_s	@; Versió assemblador
