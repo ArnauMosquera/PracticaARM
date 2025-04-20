@@ -1,59 +1,98 @@
+=======================================
+PREGUNTES ENTREVISTA - FASE 1 (CelsFahr)
+=======================================
+
+🧠 TEORIA
+
+1. Què és el format E9M22?
+   → Un format personalitzat de coma flotant de 32 bits amb 9 bits per a l’exponent i 22 per a la mantissa.
+
+2. Per què s’utilitza E9M22 en comptes de float?
+   → Perquè ens permet treballar amb una representació pròpia i entendre millor el funcionament intern del coma flotant.
+
+3. Com es converteixen graus Celsius a Fahrenheit?
+   → F = (C × 9/5) + 32
+
+4. Com es converteixen Fahrenheit a Celsius?
+   → C = (F − 32) × 5/9
+
+5. Per què no podem usar floats normals en les funcions en ensamblador?
+   → Perquè treballem amb E9M22 i necessitem usar les rutines pròpies (`E9M22_add`, `mul`, etc.) per mantenir compatibilitat.
+
 ---------------------------------------
+
+🔧 Codi ASM
+
+6. Quina és la funció de `E9M22_add`, `E9M22_sub`, etc.?
+   → Són rutines que operen amb valors en format E9M22. Les cridem amb `bl`.
+
+7. Com passes una constant (com 32.0) al teu codi?
+   → Ja està predefinida en .data com un `.word` amb el valor codificat en E9M22.
+
+8. Com implementes Fahrenheit2Celsius?
+   → Resto 32 amb `E9M22_sub`, després multiplico per 5/9 amb `E9M22_mul`.
+
+9. Com guardes el resultat d’una funció a una variable?
+   → Amb `ldr` per obtenir l’adreça, i `str r0, [adr]` per guardar el resultat.
+
+10. Quin format té la funció `main` en ASM?
+   → Té `push {lr}`, després crides funcions, guardes resultats, i acabes amb `mov r0, #0` i `pop {pc}`.
+
+---------------------------------------
+
+🛠️ Execució
+
+11. Com proves si la conversió està ben feta?
+    → Amb `gdb` o `Insight`, miro les variables `temp1F` i `temp2C` amb `p /x` o `p /f`.
+
+12. Què indica `0x415F60C4`?
+    → És el valor E9M22 corresponent a 95.3780 °F.
+
+13. Com saps si una rutina encara no està implementada?
+    → Retorna `NaN` (0x7FA00000) o un valor com `-1` en cas d’errors intencionats.
+
+=======================================
 PREGUNTES ENTREVISTA - FASE 2 (GeoTemp)
----------------------------------------
+=======================================
 
 🧠 TEORIA BÀSICA
 
 1. Què és el format E9M22?
-   → És un format personalitzat de coma flotant de 32 bits amb 9 bits per a l’exponent i 22 per a la mantissa. S’utilitza per evitar dependència directa del tipus float d’ARM.
+   → Coma flotant personalitzat amb 9 bits d’exponent i 22 de mantissa.
 
 2. Quina diferència hi ha entre float i E9M22_t?
-   → Tots dos són valors en coma flotant de 32 bits, però float segueix l’estàndard IEEE-754 i E9M22_t utilitza un format personalitzat (E9M22) per estudiar i controlar el comportament a baix nivell.
+   → float és IEEE-754; E9M22_t és una codificació pròpia usada per control d’errors i pràctiques de baix nivell.
 
 3. Què representa l’estructura maxmin_t?
-   → Una estructura amb 6 camps que guarda:
-      - Temperatura mínima i màxima en Celsius
-      - Temperatura mínima i màxima en Fahrenheit
-      - Índexs de posició de la mínima i màxima
+   → Guarda els valors màxims i mínims d’una ciutat/mes, en graus Celsius i Fahrenheit, més els seus índexs.
 
 4. Per què cal dividir per 12 a avgmaxmin_city()?
-   → Perquè calculem la mitjana de 12 valors mensuals. Dividim la suma de les temperatures entre 12.
+   → Per calcular la mitjana entre els 12 mesos.
 
 ---------------------------------------
 
 🔍 Codi ASM
 
 5. Com accedeixes a ttemp[id_city][i] en ASM?
-   → Multipliquem id_city × 48 (ja que hi ha 12 columnes de 4 bytes), després sumem i × 4 (offset columna). El resultat és una adreça de 32 bits que conté la temperatura E9M22.
+   → Multiplicant `id_city × 48` (perquè hi ha 12 columnes × 4 bytes) i afegint `i × 4` → accés directe a la posició de memòria.
 
-6. Com compares dos valors E9M22 en ASM?
-   → Utilitzem les rutines `E9M22_is_gt`, `E9M22_is_lt` i `E9M22_are_eq`. Retornen 1 si la comparació és certa, 0 si no.
+6. Com compares valors en E9M22?
+   → Amb `E9M22_is_gt`, `E9M22_is_lt`, i `E9M22_are_eq`, que retornen 0 o 1.
 
-7. Quins registres fas servir i per a què?
-   → Registres usats habitualment:
-      r4 = i (índex del bucle)
-      r5 = avg (acumulador)
-      r6 = max
-      r7 = min
-      r8 = tvar (valor temporal)
-      r9 = idmax
-      r10 = idmin
-      r0–r3 = paràmetres i retorns de funcions
+7. Quins registres uses?
+   → r4 = i, r5 = avg, r6 = max, r7 = min, r8 = tvar, r9 = idmax, r10 = idmin, r0–r3 per paràmetres i resultats.
 
-8. Com escrius resultats a mmres?
-   → Amb `str` (per valors de 32 bits) i `strh` (per unsigned short). Utilitzem els desplaçaments `MM_TMINC`, `MM_TMAXF`, etc., definits a `avgmaxmintemp.i`.
+8. Com escrius valors a mmres?
+   → Amb `str` per floats i `strh` per unsigned short, fent servir els offsets definits a `avgmaxmintemp.i`.
 
 ---------------------------------------
 
 🛠️ Execució i proves
 
-9. Com proves que la teva funció funciona?
-   → Executo `make debug`, poso un breakpoint a `main` o al test, i executo:
-        p /x percentatge_success
-     Si és ≥ 0x46 (70%), vol dir que està aprovat.
+9. Com comproves si tot funciona?
+   → Amb `make run` per veure el resultat i `make debug` + `p /x percentatge_success`.
 
-10. Com detectes si la funció falla?
-    → Si retorna `NaN` (0x7FA00000), o el percentatge és molt baix. També puc mirar les variables a Insight i comparar els resultats.
+10. Com sabries si la teva funció falla?
+    → Percentatge d’èxit baix (< 70%) o retorns incorrectes com NaN (0x7FA00000).
 
----------------------------------------
-
+=======================================
