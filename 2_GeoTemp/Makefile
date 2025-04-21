@@ -11,7 +11,7 @@
 # options for code generation
 #-------------------------------------------------------------------------------
 ARCH	:= -march=armv5te -mlittle-endian
-INCL    := -I./include
+INCL    := -I./Include
 ASFLAGS	:= $(ARCH) $(INCL) -g
 CCFLAGS	:= -Wall -gdwarf-3 -O0 $(ARCH) $(INCL)
 LDFLAGS := -z max-page-size=0x8000
