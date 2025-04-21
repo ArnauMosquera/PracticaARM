@@ -11,7 +11,7 @@
 # options for code generation
 #-------------------------------------------------------------------------------
 ARCH	:= -march=armv5te -mlittle-endian
-INCL    := -I./Include
+INCL    := -I./include
 ASFLAGS	:= $(ARCH) $(INCL) -g
 CCFLAGS	:= -Wall -gdwarf-3 -O0 $(ARCH) $(INCL)
 LDFLAGS := -z max-page-size=0x8000
@@ -20,46 +20,36 @@ LDFLAGS := -z max-page-size=0x8000
 # make commands
 #-------------------------------------------------------------------------------
 tota_2a_part_practica_FC : test_geotemp_c.elf test_geotemp_s.elf geotemp_c.elf geotemp_s.elf 
-	$(warning Recorda: aquest Makefile esta incomplet. Completa les regles faltants!! ... i esborra aquest warning.)
 
+build/avgmaxmintemp_c.o : source/avgmaxmintemp_c.c include/avgmaxmintemp.h
+	arm-none-eabi-gcc $(CCFLAGS) -c $< -o $@
 
-build/avgmaxmintemp_c.o : source/avgmaxmintemp_c.c # falten includes .h
-	$(warning Regla incompleta: build/avgmaxmintemp_c.o)
+build/data.o : source/data.c include/data.h
+	arm-none-eabi-gcc $(CCFLAGS) -c $< -o $@
 
-geotemp_c.elf : build/geotemp.o build/avgmaxmintemp_c.o # falten alguns fitxers .o i .a
-	$(warning Regla incompleta: geotemp_c.elf)
+build/geotemp.o : source/geotemp.c include/E9M22.h include/CelsiusFahrenheit.h include/avgmaxmintemp.h include/geotemp.h
+	arm-none-eabi-gcc $(CCFLAGS) -c $< -o $@
 
+geotemp_c.elf : build/geotemp.o build/data.o build/avgmaxmintemp_c.o p_lib/CelsiusFahrenheit_c.o p_lib/libE9M22.a
+	arm-none-eabi-ld $(LDFLAGS) $^ p_lib/startup.o p_lib/libfoncompus.a -o $@
 
-build/avgmaxmintemp_s.o : source/avgmaxmintemp_s.s # falten includes .i
-	$(warning Regla incompleta: build/avgmaxmintemp_s.o)
+build/avgmaxmintemp_s.o : source/avgmaxmintemp_s.s include/avgmaxmintemp.i
+	arm-none-eabi-as $(ASFLAGS) -o $@ $<
 
-geotemp_s.elf : build/geotemp.o build/avgmaxmintemp_s.o # falten alguns fitxers .o i .a
-	$(warning Regla incompleta: geotemp_s.elf)
-
-build/data.o : source/data.c # falten includes .h
-	$(warning Regla incompleta: build/data.o)
-
-build/geotemp.o : source/geotemp.c include/E9M22.h include/CelsiusFahrenheit.h include/avgmaxmintemp.h
-	arm-none-eabi-gcc $(CCFLAGS) -c source/geotemp.c -o build/geotemp.o
-
-
+geotemp_s.elf : build/geotemp.o build/data.o build/avgmaxmintemp_s.o p_lib/CelsiusFahrenheit_s.o p_lib/libE9M22.a
+	arm-none-eabi-ld $(LDFLAGS) $^ p_lib/startup.o p_lib/libfoncompus.a -o $@
 
 #-------------------------------------------------------------------------------
 # test making commands
 #-------------------------------------------------------------------------------
 build/test_geotemp.o : tests/test_geotemp.c include/E9M22.h include/avgmaxmintemp.h
-	arm-none-eabi-gcc $(CCFLAGS) -c tests/test_geotemp.c -o build/test_geotemp.o
+	arm-none-eabi-gcc $(CCFLAGS) -c $< -o $@
 
 test_geotemp_c.elf : build/test_geotemp.o build/avgmaxmintemp_c.o p_lib/CelsiusFahrenheit_c.o p_lib/libE9M22.a
-	arm-none-eabi-ld $(LDFLAGS) build/test_geotemp.o build/avgmaxmintemp_c.o \
-					 p_lib/CelsiusFahrenheit_c.o p_lib/startup.o p_lib/libE9M22.a \
-					 p_lib/libfoncompus.a -o test_geotemp_c.elf
+	arm-none-eabi-ld $(LDFLAGS) $^ p_lib/startup.o p_lib/libfoncompus.a -o $@
 
 test_geotemp_s.elf : build/test_geotemp.o build/avgmaxmintemp_s.o p_lib/CelsiusFahrenheit_s.o p_lib/libE9M22.a
-	arm-none-eabi-ld $(LDFLAGS) build/test_geotemp.o build/avgmaxmintemp_s.o \
-					 p_lib/CelsiusFahrenheit_s.o p_lib/startup.o p_lib/libE9M22.a \
-					 p_lib/libfoncompus.a -o test_geotemp_s.elf
-
+	arm-none-eabi-ld $(LDFLAGS) $^ p_lib/startup.o p_lib/libfoncompus.a -o $@
 
 #-------------------------------------------------------------------------------
 # clean commands
@@ -68,14 +58,12 @@ clean :
 	@rm -fv build/*
 	@rm -fv *.elf
 
-
 #-----------------------------------------------------------------------------
 # run commands
 #-----------------------------------------------------------------------------
 run : geotemp_c.elf geotemp_s.elf
 	arm-eabi-insight geotemp_c.elf &
 	#arm-eabi-insight geotemp_s.elf &
-
 
 #-----------------------------------------------------------------------------
 # debug commands
