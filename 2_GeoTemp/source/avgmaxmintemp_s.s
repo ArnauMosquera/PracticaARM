@@ -49,11 +49,11 @@ avgmaxmin_city:
 
     @ accedir a ttemp[id_city][0] → base = R0 + id_city * 48 (12×4)
     mov r8, #48
-    mul r5, r5, r8
-    add r8, r0, r5
-    ldr r5, [r8]            @ r5 = avg
-    mov r6, r5              @ max = avg
-    mov r7, r5              @ min = avg
+    mul r9, r5, r8            @; Usar r9 para la multiplicación
+    add r8, r0, r9            @; Agregar el resultado a la base
+    ldr r5, [r8]              @; r5 = avg
+    mov r6, r5                @; max = avg
+    mov r7, r5                @; min = avg
 
 loop_city:
     cmp r4, #12
@@ -64,39 +64,39 @@ loop_city:
     lsl r8, r8, #2
     add r8, r8, r0
     add r8, r8, r5
-    ldr r8, [r8]            @ tvar = ttemp[id_city][i]
+    ldr r8, [r8]              @; tvar = ttemp[id_city][i]
 
-    mov r0, r5              @ avg
-    mov r1, r8              @ tvar
+    mov r0, r5                @; avg
+    mov r1, r8                @; tvar
     bl E9M22_add
-    mov r5, r0              @ avg = avg + tvar
+    mov r5, r0                @; avg = avg + tvar
 
-    mov r0, r8              @ tvar
-    mov r1, r6              @ max
+    mov r0, r8                @; tvar
+    mov r1, r6                @; max
     bl E9M22_is_gt
     cmp r0, #0
     beq check_min_city
-    mov r6, r8              @ max = tvar
-    mov r9, r4              @ idmax = i
+    mov r6, r8                @; max = tvar
+    mov r9, r4                @; idmax = i
 
 check_min_city:
-    mov r0, r8              @ tvar
-    mov r1, r7              @ min
+    mov r0, r8                @; tvar
+    mov r1, r7                @; min
     bl E9M22_is_lt
     cmp r0, #0
     beq next_city
-    mov r7, r8              @ min = tvar
-    mov r10, r4             @ idmin = i
+    mov r7, r8                @; min = tvar
+    mov r10, r4               @; idmin = i
 
 next_city:
     add r4, r4, #1
     b loop_city
 
 end_loop_city:
-    ldr r1, =0x40A00000     @ 12.0 en E9M22
-    mov r0, r5              @ avg
+    ldr r1, =0x40A00000       @; 12.0 en E9M22
+    mov r0, r5                @; avg
     bl E9M22_div
-    mov r5, r0              @ avg = avg / 12
+    mov r5, r0                @; avg = avg / 12
 
     @ mmres->tmin_C = min
     str r7, [r3, #MM_TMINC]
@@ -118,7 +118,7 @@ end_loop_city:
     @ mmres->id_max = idmax
     strh r9, [r3, #MM_IDMAX]
 
-    mov r0, r5              @ return avg
+    mov r0, r5                @; return avg
     pop {r4-r10, pc}
     
 @; avgmaxmin_month(): calcula la temperatura mitjana, màxima i mínima 
@@ -154,7 +154,8 @@ loop_month:
     bge end_loop_month
 
     mov r8, r4
-    mul r8, r8, #48         @ offset fila = i * 48
+    mov r9, #48          @ Cargar el valor 48 en r9
+    mul r8, r8, r9       @ Multiplicar r8 por 48 y almacenar el resultado en r8
     add r8, r0, r8
     add r8, r8, r7          @ offset columna
     ldr r8, [r8]            @ tvar = ttemp[i][id_month]
@@ -209,5 +210,3 @@ end_loop_month:
 
     mov r0, r5
     pop {r4-r10, pc}
-
-

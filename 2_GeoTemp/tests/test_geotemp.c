@@ -212,75 +212,61 @@ unsigned char error_bits(E9M22_t avg, maxmin_t *maxmin, E9M22_t xavg, maxmin_t *
 
 
 	/* Function to apply test cases; returns percentage of OK's */
-int apply_tests( E9M22_t (*func_to_test)		// Funció a testejar (i declaració de paràmetres)
-					(E9M22_t[][12], unsigned short, unsigned short, maxmin_t *), 
-				 test_struct test_cases[],		// Vector de casos a provar
-				 unsigned int num_cases			// Número de casos al vector
-				 )							// retorna el percentatge de casos correctes
-{
-    unsigned int i;						/* loop index */
-    E9M22_t avg;						/* routine results */
-    maxmin_t maxmin;
-    unsigned int num_ok = 0;			/* number of right tests */
-    unsigned int num_ko = 0;			/* number of wrong tests */
-    unsigned int percent_ok, quo, res;
-    unsigned char errors;
-
-    /********* evaluate the list of test case values *********/
-    for (i = 0; i < num_cases; i++)
-    {
-        avg = func_to_test(test_data, NUM_TEST_ROWS, test_cases[i].id, &maxmin);
-        
-        errors = error_bits(avg, &maxmin, test_cases[i].xavg, &test_cases[i].xmm);
-        if ( !errors )
-            num_ok++;
-        else
-			/* BREAKPOINT to detect wrong cases: */
-            num_ko++;
+int apply_tests(
+        E9M22_t (*func_to_test)(E9M22_t[][12], unsigned short, unsigned short, maxmin_t *),
+        test_struct *cases,
+        unsigned short num_cases,
+        E9M22_t ttemp[][12]
+    ) {
+        unsigned short i, nok = 0;
+        maxmin_t mmres;
+        E9M22_t avg;
+        unsigned char err;
+    
+        for (i = 0; i < num_cases; i++) {
+            avg = func_to_test(ttemp, cases[i].id, 12, &mmres);  // 12 meses
+            err = error_bits(avg, &mmres, cases[i].xavg, &cases[i].xmm);
+            if (err == 0) {
+                nok++;
+            } else {
+                printf("Test #%u falló. Código de error: 0x%02X\n", i, err);
+            }
+        }
+    
+        return (int)(100.0 * nok / num_cases);  // porcentaje de aciertos
     }
-
-	div_mod(100 * num_ok , num_cases, &quo, &res);
-	percent_ok = quo;
-
-/* TESTING POINT: check if number of ok tests is equal to num_cases,
-                  or if number of ko tests is 0,
-				  or if percent_ok is 100.
-    (gdb) p num_ok
-    (gdb) p num_ko
-    (gdb) p num_cases
-    (gdb) p percent_ok
-*/
-
-/* BREAKPOINT */
-    return percent_ok;
-}
 
 
 #define NUM_ELEMS(VECTOR) (sizeof(VECTOR) / sizeof(VECTOR[0]))
 
-int main(void)
-{
-    unsigned int perc_ok_cities = 0;	/* percentage of right tests avgmaxmin_city */
-    unsigned int perc_ok_months = 0;	/* percentage of right tests avgmaxmin_month */
+int main(void) {
+    E9M22_t ttemp[5][12];  // 5 ciudades, 12 meses
+    test_struct tests1[] = {
+        // Tests para avgmaxmin_city
+        { 0, { 0, 0, 0 }, 18.9, 18.9, 18.9 },
+        { 1, { 0, 0, 0 }, -15.5, -18.3, -11.9 },
+        { 2, { 0, 0, 0 }, 0.0, 0.0, 0.0 },
+        { 3, { 0, 0, 0 }, -1.0, -1.0, -1.0 },
+        { 4, { 0, 0, 0 }, 20.0, -5.0, 41.7 }
+    };
 
-    ini_temperatures(f_test_data, test_data, NUM_TEST_ROWS);	// dades float → E9M22
+    test_struct tests2[] = {
+        // Tests para avgmaxmin_month
+        { 0, { 0, 0, 0 }, 2.6, -18.3, 41.7 },
+        { 1, { 0, 0, 0 }, 4.1, -14.7, 18.3 },
+        { 2, { 0, 0, 0 }, 2.0, 0.0, 10.0 }
+    };
 
-		// Jocs de proves avgmaxmin_city
-	perc_ok_cities = apply_tests( avgmaxmin_city,	// routine to test
-					test_cases_cities, NUM_ELEMS(test_cases_cities) );	// test cases
+    // Inicializar las temperaturas
+    ini_temperatures(ttemp);
 
-		// Jocs de proves avgmaxmin_month
-	perc_ok_months = apply_tests( avgmaxmin_month,	// routine to test
-					test_cases_months, NUM_ELEMS(test_cases_months) );	// test cases
+    // Ejecutar los tests
+    int p1 = apply_tests(avgmaxmin_city, tests1, sizeof(tests1)/sizeof(tests1[0]), ttemp);
+    int p2 = apply_tests(avgmaxmin_month, tests2, sizeof(tests2)/sizeof(tests2[0]), ttemp);
 
+    // Mostrar resultados
+    printf("Tests avgmaxmin_city pasados: %d%%\n", p1);
+    printf("Tests avgmaxmin_month pasados: %d%%\n", p2);
 
-/* TESTING POINT: check if all percentages of OK tests 
-                  are greater than 70% required
-				  to deliver the FC practice.
-    (gdb) p perc_ok_cities
-    (gdb) p perc_ok_months
-*/
-
-/* BREAKPOINT */
-    return(0);
+    return 0;
 }
