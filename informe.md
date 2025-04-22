@@ -921,4 +921,6 @@ E9M22_are_unordered_s:
 
 ## **2_GeoTemp**
 
-## **1.1 Especificació de les funcions de GeoTemp**
+## **2.1 Especificació de les funcions de GeoTemp**
+
+### **2.1.1 
