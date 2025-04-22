@@ -312,111 +312,111 @@ E9M22_sub_s:
 @; E9M22_neg_s(): canvia el signe (nega) de num
 .global E9M22_neg_s
 E9M22_neg_s:
-    push {lr}
+    push {lr}                   @ Guardem el registre de retorn (lr) per poder tornar més endavant
 
-    ldr r1, =E9M22_MASK_SIGN
-    eor r0, r0, r1      @; Toggle del bit de signe
+    ldr r1, =E9M22_MASK_SIGN    @ Carreguem la màscara per al bit de signe
+    eor r0, r0, r1              @ Realitzem una operació XOR per invertir el bit de signe (canviar el signe de num)
 
-    pop {pc}
+    pop {pc}                     @ Recuperem el registre de retorn (pc) i tornem a la funció cridant
+
 @; E9M22_abs_s(): valor absolut de num
 
 
 .global E9M22_abs_s
 E9M22_abs_s:
-    push {lr}
+    push {lr}                   @ Guardem el registre de retorn (lr) per poder tornar més endavant
 
-    ldr r1, =E9M22_MASK_SIGN
-    bic r0, r0, r1      @; Esborrem el bit de signe
+    ldr r1, =E9M22_MASK_SIGN    @ Carreguem la màscara per al bit de signe
+    bic r0, r0, r1              @ Esborrem el bit de signe de r0, convertint el nombre en el seu valor absolut
 
-    pop {pc}
+    pop {pc}                     @ Recuperem el registre de retorn (pc) i tornem a la funció cridant
 @; E9M22_are_eq_s(): retorna 1 si num1 == num2, incloent +0 == -0
 
 
 .global E9M22_are_eq_s
 E9M22_are_eq_s:
-    push {r2, r3, lr}
+    push {r2, r3, lr}          @ Guardem els registres r2, r3 i lr (link register) per poder tornar després
 
-    mov r2, r0      @; r2 = num1
-    mov r3, r1      @; r3 = num2
+    mov r2, r0                 @ r2 = num1 (copiem num1 a r2)
+    mov r3, r1                 @ r3 = num2 (copiem num2 a r3)
 
     @; Comprovar si algun operand és NaN
-    ldr r1, =E9M22_MASK_EXP
-    and r0, r2, r1
-    cmp r0, r1
-    bne .check_nan2_mul
-    ldr r1, =E9M22_MASK_FRAC
-    and r0, r2, r1
-    cmp r0, #0
-    bne .return_false
+    ldr r1, =E9M22_MASK_EXP    @ Carreguem la màscara per al camp d'exponent
+    and r0, r2, r1            @ Apliquem la màscara per obtenir l'exponent de num1
+    cmp r0, r1                 @ Comprovem si l'exponent és el màxim (NaN)
+    bne .check_nan2_mul        @ Si no és NaN, anem a comprovar num2
+    ldr r1, =E9M22_MASK_FRAC   @ Carreguem la màscara per al camp de la fracció
+    and r0, r2, r1            @ Apliquem la màscara per obtenir la fracció de num1
+    cmp r0, #0                @ Comprovem si la fracció és zero (NaN)
+    bne .return_false          @ Si la fracció no és zero, num1 és NaN, i retornem false
 
 .check_nan2_mul:
-    ldr r1, =E9M22_MASK_EXP
-    and r0, r3, r1
-    cmp r0, r1
-    bne .check_equal
-    ldr r1, =E9M22_MASK_FRAC
-    and r0, r3, r1
-    cmp r0, #0
-    bne .return_false
+    ldr r1, =E9M22_MASK_EXP    @ Carreguem la màscara per al camp d'exponent
+    and r0, r3, r1            @ Apliquem la màscara per obtenir l'exponent de num2
+    cmp r0, r1                 @ Comprovem si l'exponent de num2 és el màxim (NaN)
+    bne .check_equal           @ Si no és NaN, anem a comprovar si els dos nombres són iguals
+    ldr r1, =E9M22_MASK_FRAC   @ Carreguem la màscara per al camp de la fracció
+    and r0, r3, r1            @ Apliquem la màscara per obtenir la fracció de num2
+    cmp r0, #0                @ Comprovem si la fracció és zero (NaN)
+    bne .return_false          @ Si la fracció no és zero, num2 és NaN, i retornem false
 
 .check_equal:
-    cmp r2, r3
-    moveq r0, #1
-    bne .check_zero_eq
-    b .end_eq
+    cmp r2, r3                 @ Comprovem si num1 és igual a num2
+    moveq r0, #1               @ Si són iguals, retornem 1
+    bne .check_zero_eq         @ Si no són iguals, comprovem si són zero
 
 .check_zero_eq:
-    orr r0, r2, r3
-    ldr r1, =E9M22_MASK_EXP | E9M22_MASK_FRAC
-    and r0, r0, r1
-    cmp r0, #0
-    moveq r0, #1
-    movne r0, #0
+    orr r0, r2, r3             @ Apliquem OR entre num1 i num2
+    ldr r1, =E9M22_MASK_EXP | E9M22_MASK_FRAC   @ Carreguem la màscara per al camp d'exponent i fracció
+    and r0, r0, r1             @ Apliquem la màscara per obtenir el valor combinat
+    cmp r0, #0                 @ Comprovem si el resultat és zero
+    moveq r0, #1               @ Si és zero, retornem 1 (són iguals)
+    movne r0, #0               @ Si no és zero, retornem 0 (no són iguals)
     b .end_eq
 
 .return_false:
-    mov r0, #0
+    mov r0, #0                 @ Si es troba un NaN o alguna altra condició, retornem 0
 
 .end_eq:
-    pop {r2, r3, pc}
+    pop {r2, r3, pc}           @ Recuperem els registres i tornem a la funció cridant
 @; E9M22_are_unordered_s(): retorna 1 si num1 o num2 són NaN
 
 
 .global E9M22_are_unordered_s
 E9M22_are_unordered_s:
-    push {r2, r3, lr}
+    push {r2, r3, lr}          @ Guardem els registres r2, r3 i lr (link register) per poder tornar després
 
-    mov r2, r0      @; num1
-    mov r3, r1      @; num2
+    mov r2, r0                 @ r2 = num1 (copiem num1 a r2)
+    mov r3, r1                 @ r3 = num2 (copiem num2 a r3)
 
-    ldr r1, =E9M22_MASK_EXP
-    and r0, r2, r1
-    cmp r0, r1
-    bne .check_nan2_addu
-    ldr r1, =E9M22_MASK_FRAC
-    and r0, r2, r1
-    cmp r0, #0
-    bne .return_true
+    ldr r1, =E9M22_MASK_EXP    @ Carreguem la màscara per al camp d'exponent
+    and r0, r2, r1            @ Apliquem la màscara per obtenir l'exponent de num1
+    cmp r0, r1                 @ Comprovem si l'exponent és el màxim (NaN)
+    bne .check_nan2_addu        @ Si no és NaN, anem a comprovar num2
+    ldr r1, =E9M22_MASK_FRAC   @ Carreguem la màscara per al camp de la fracció
+    and r0, r2, r1            @ Apliquem la màscara per obtenir la fracció de num1
+    cmp r0, #0                @ Comprovem si la fracció és zero (NaN)
+    bne .return_true          @ Si la fracció no és zero, num1 és NaN, i retornem true
 
 .check_nan2_addu:
-    ldr r1, =E9M22_MASK_EXP
-    and r0, r3, r1
-    cmp r0, r1
-    bne .check_nan2uf
-    ldr r1, =E9M22_MASK_FRAC
-    and r0, r3, r1
-    cmp r0, #0
-    bne .return_true
+    ldr r1, =E9M22_MASK_EXP    @ Carreguem la màscara per al camp d'exponent
+    and r0, r3, r1            @ Apliquem la màscara per obtenir l'exponent de num2
+    cmp r0, r1                 @ Comprovem si l'exponent de num2 és el màxim (NaN)
+    bne .check_nan2uf          @ Si no és NaN, anem a comprobar si num2 és NaN
+    ldr r1, =E9M22_MASK_FRAC   @ Carreguem la màscara per al camp de la fracció
+    and r0, r3, r1            @ Apliquem la màscara per obtenir la fracció de num2
+    cmp r0, #0                @ Comprovem si la fracció és zero (NaN)
+    bne .return_true          @ Si la fracció no és zero, num2 és NaN, i retornem true
 
 .check_nan2uf:
-    mov r0, #0
+    mov r0, #0                 @ Si cap dels dos números és NaN, retornem 0 (no estan unordered)
     b .end_unordered
 
 .return_true:
-    mov r0, #1
+    mov r0, #1                 @ Si algun número és NaN, retornem 1 (estan unordered)
 
 .end_unordered:
-    pop {r2, r3, pc}
+    pop {r2, r3, pc}           @ Recuperem els registres i tornem a la funció cridant
 @; E9M22_mul_s(): calcula num1 × num2 (coma flotant E9M22)
 
 

@@ -11,6 +11,7 @@ ARCH	:= -march=armv5te -mlittle-endian
 INCL    := -I./include
 ASFLAGS := $(ARCH) $(INCL) -g
 CCFLAGS := -Wall -gdwarf-3 -O0 $(ARCH) $(INCL)
+CFLAGS += -I/path/a/arm-none-eabi-newlib/include
 LDFLAGS := -z max-page-size=0x8000
 
 # Crear build si no existeix

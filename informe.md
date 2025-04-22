@@ -1,40 +1,63 @@
 # **Informe de la Pràctica de Fundaments de Computadors**
 
-**Nom de l’estudiant:**  
-**NIU:**  
+**Albert Martí i Arnau Mosquera**  
 **Assignatura:** Fundaments de Computadors  
 **Pràctica:** Conversió de codi C a ARM - Anàlisi i processament de temperatures  
 **Data de lliurament:** 22 d’abril de 2025
 
 ---
 
-## **Índex**
+## 📑 Índex
 
-1. [1_celsfahr_E9M22] 
-    1.1 [Especificacions]
-    - 1.1.1 [E9M22_add]
-    - 1.1.2 [E9M22_sub]
-    - 1.1.3 [E9M22_neg]
-    - 1.1.4 [E9M22_abs]
-    - 1.1.5 [E9M22_mul_s]
-    - 1.1.6 [E9M22_are_eq]
-    - 1.1.7 [E9M22_are_unordered_s]
-    
-    1.2 [Disseny]
-    1.3 [Implementació]
-    1.4 [Joc de proves ampliat]
+### 1. 1_celsfahr_E9M22
 
-2. [2_GeoTemp] 
-    2.1 [Especificacions]
-    2.2 [Disseny] 
-    2.3 [Implementació]
-    2.4 [Joc de proves ampliat]
+#### 1.1 Especificacions
+- 1.1.1 `E9M22_add`
+- 1.1.2 `E9M22_sub`
+- 1.1.3 `E9M22_neg`
+- 1.1.4 `E9M22_abs`
+- 1.1.5 `E9M22_mul_s`
+- 1.1.6 `E9M22_are_eq`
+- 1.1.7 `E9M22_are_unordered_s`
 
+#### 1.2 Disseny
+- 1.2.1 `E9M22_add`
+- 1.2.2 `E9M22_sub`
+- 1.2.3 `E9M22_neg`
+- 1.2.4 `E9M22_abs`
+- 1.2.5 `E9M22_mul_s`
+- 1.2.6 `E9M22_are_eq`
+- 1.2.7 `E9M22_are_unordered_s`
+
+#### 1.3 Implementació
+- 1.3.1 `E9M22_add`
+- 1.3.2 `E9M22_sub`
+- 1.3.3 `E9M22_neg`
+- 1.3.4 `E9M22_abs`
+- 1.3.5 `E9M22_mul_s`
+- 1.3.6 `E9M22_are_eq`
+- 1.3.7 `E9M22_are_unordered_s`
+
+---
+
+### 2. 2_GeoTemp
+
+#### 2.1 Especificacions
+- 2.1.1 `avgmaxmin_city`
+- 2.1.2 `avgmaxmin_month`
+
+#### 2.2 Disseny
+- 2.2.1 `avgmaxmin_city`
+- 2.2.2 `avgmaxmin_month`
+
+#### 2.3 Implementació
+- 2.3.1 `avgmaxmin_city`
+- 2.3.2 `avgmaxmin_month`
 ---
 
 ## **1_celsfahr_E9M22**
 
-## 1.1 Especificació de les funcions bàsiques E9M22
+## **1.1 Especificació de les funcions bàsiques E9M22**
 
 ### **1.1.1 E9M22_add**
 
@@ -895,3 +918,7 @@ E9M22_are_unordered_s:
 .end_unordered:
     pop {r2, r3, pc}           @ Recuperem els registres i tornem a la funció cridant
 ```
+
+## **2_GeoTemp**
+
+## **1.1 Especificació de les funcions de GeoTemp**
