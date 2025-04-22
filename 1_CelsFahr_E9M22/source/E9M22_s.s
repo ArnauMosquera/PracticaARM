@@ -19,107 +19,120 @@ FLOAT_sNAN	=	0x7FA00000	@; Un possible NaN (signaling) en binary32
 .align 2
 .arm
 
-@ --- FUNCIONS AUXILIARS QUE NECESSITAVES DEFINIR ---
 
 .global E9M22_normalize_and_round_s
 E9M22_normalize_and_round_s:
     @ Aquesta és una versió dummy que només retorna el mantissa amb signe i exponent com a resultat.
     @ Hauràs d'implementar la versió real més endavant.
-    push {lr}
-    @ suposant que r0 = mantissa, r1 = exponent, r2 = signe
-    @ Aquí podries construir el resultat codificat, però ara només retornem r0 tal com està.
-    pop {pc}
+
+    push {lr}                       @ Guardem el registre de retorn (lr) per tornar després
+
+    @ Suposant que:
+    @ - r0 conté la mantissa
+    @ - r1 conté l'exponent
+    @ - r2 conté el signe del nombre (1 per negatiu, 0 per positiu)
+    @ Aquesta funció hauria de normalitzar i arrodonir la mantissa, ajustant l'exponent i el signe.
+
+    @ Però, de moment, només retornarem el registre r0 tal com està,
+    @ sense realitzar cap operació de normalització o arrodoniment real.
+
+    pop {pc}                         @ Recuperem el registre de retorn (pc) i tornem a la funció cridant
 
 .global count_trailing_zeros_s
 count_trailing_zeros_s:
-    push {lr}
-    mov r1, #0
+    push {lr}              @ Guardem l'adreça de retorn a la pila
+    mov r1, #0             @ Inicialitzem el comptador de zeros a r1
+
 .loop_ctz:
-    tst r0, #1
-    bne .end_ctz
-    lsr r0, r0, #1
-    add r1, r1, #1
-    b .loop_ctz
+    tst r0, #1             @ Comprovem si el bit menys significatiu és 1
+    bne .end_ctz           @ Si ho és, sortim del bucle
+    lsr r0, r0, #1         @ Desplacem r0 un bit cap a la dreta (r0 = r0 >> 1)
+    add r1, r1, #1         @ Incrementem el comptador de zeros finals
+    b .loop_ctz            @ Tornem a comprovar el següent bit
+
 .end_ctz:
-    mov r0, r1
-    pop {pc}
+    mov r0, r1             @ El resultat (comptador) el posem a r0
+    pop {pc}               @ Recuperem l'adreça de retorn i retornem
 
 .global count_leading_zeros_s
 count_leading_zeros_s:
-    push {lr}
-    mov r1, #0
-    mov r2, #1 << 31
-.loop_clz:
-    tst r0, r2
-    bne .end_clz
-    lsr r2, r2, #1
-    add r1, r1, #1
-    cmp r1, #32
-    bge .end_clz
-    b .loop_clz
-.end_clz:
-    mov r0, r1
-    pop {pc}
+    push {lr}               @ Guarda l'adreça de retorn a la pila
+    mov r1, #0              @ r1 comptador de zeros inicialitzat a 0
+    mov r2, #1 << 31        @ r2 comença amb un 1 a la posició més significativa (bit 31)
 
-@; E9M22_add_s(): calcula num1 + num2 (en coma flotant E9M22)
+.loop_clz:
+    tst r0, r2              @ Comprova si el bit corresponent de r0 és 1
+    bne .end_clz            @ Si és 1, sortim del bucle
+    lsr r2, r2, #1          @ Desplacem el bit de r2 cap a la dreta (bit següent)
+    add r1, r1, #1          @ Incrementem el comptador de zeros
+    cmp r1, #32             @ Si hem comptat 32 bits, sortim (tots són zeros)
+    bge .end_clz
+    b .loop_clz             @ Tornem a comprovar el següent bit
+
+.end_clz:
+    mov r0, r1              @ Retornem el nombre de zeros al principi (leading zeros)
+    pop {pc}                @ Recuperem l'adreça de retorn
+
 .global E9M22_add_s
 E9M22_add_s:
-    push {r4-r11, lr}
+    push {r4-r11, lr}         @ Guardem els registres que utilitzarem
 
-    mov r4, r0          @; r4 = num1
-    mov r5, r1          @; r5 = num2
+    mov r4, r0                @ r4 = num1
+    mov r5, r1                @ r5 = num2
 
-    @; Obtenir signe1 i signe2
+    @ Obtenim els signes de num1 i num2
     ldr r6, =E9M22_MASK_SIGN
-    and r7, r4, r6      @; signe1 → r7
-    and r8, r5, r6      @; signe2 → r8
+    and r7, r4, r6            @ signe1 → r7
+    and r8, r5, r6            @ signe2 → r8
 
-    @; Comprovar si num1 és NaN
+    @ Comprovem si num1 és NaN
     ldr r9, =E9M22_MASK_EXP
     and r10, r4, r9
     cmp r10, r9
-    bne check_nan2      @; No és NaN? comprovem el segon operand
+    bne check_nan2           @ Si no és NaN, mirem num2
     ldr r9, =E9M22_MASK_FRAC
     and r10, r4, r9
     cmp r10, #0
-    bne return_nan1     @; num1 és NaN → retorna num1
+    bne return_nan1          @ num1 és NaN → retorna num1
 
 check_nan2:
+    @ Comprovem si num2 és NaN
     ldr r9, =E9M22_MASK_EXP
     and r10, r5, r9
     cmp r10, r9
-    bne check_inf       @; No és NaN? anem a veure si és infinit
+    bne check_inf
     ldr r9, =E9M22_MASK_FRAC
     and r10, r5, r9
     cmp r10, #0
-    bne return_nan2     @; num2 és NaN → retorna num2
+    bne return_nan2          @ num2 és NaN → retorna num2
     pop {r4-r11, pc}
+
 check_inf:
-    @; Comprovem si num1 és infinit
+    @ Comprovem si num1 és infinit
     ldr r9, =E9M22_MASK_EXP
     and r10, r4, r9
     cmp r10, r9
     bne check_inf2
 
-    @; num1 és infinit
+    @ num1 és infinit
     and r10, r5, r9
     cmp r10, r9
-    bne return_inf1   @; num2 no és infinit → retorna num1
+    bne return_inf1          @ num2 no és infinit → retorna num1
 
-    @; num2 també és infinit → comparar signes
+    @ Tots dos infinits → comparar signes
     cmp r7, r8
-    beq return_inf1   @; mateixes signes → retorna num1
+    beq return_inf1          @ mateix signe → retorna num1
     ldr r0, =E9M22_qNAN
-	ldr r0, [r0]  @; signes oposats → retorna NaN
+    ldr r0, [r0]             @ signes oposats → retorna NaN
     b end_add
 
 check_inf2:
-    @; Comprovem si num2 és infinit
+    @ Comprovem si num2 és infinit
     and r10, r5, r9
     cmp r10, r9
     bne check_zero
 
-    @; num2 és infinit → retorna num2
+    @ num2 és infinit → retorna num2
     mov r0, r5
     b end_add
 
@@ -127,95 +140,94 @@ return_inf1:
     mov r0, r4
     b end_add
 
-@ -----------------------
-@ Tractament zeros
+@ ----------- Tractament de zeros -----------
+
 check_zero:
-    @; Comprovar si num1 == 0
+    @ Comprovem si num1 == 0
     ldr r9, =E9M22_MASK_EXP
     ldr r0, =E9M22_MASK_FRAC
-	orr r9, r9, r0
+    orr r9, r9, r0
     and r10, r4, r9
     cmp r10, #0
-    bne check_zero2   @; num1 ≠ 0
+    bne check_zero2          @ num1 ≠ 0
 
-    @; num1 és zero → retorna num2
+    @ num1 és 0 → retorna num2
     mov r0, r5
     b end_add
 
 check_zero2:
     and r10, r5, r9
     cmp r10, #0
-    bne normal_add     @; num2 ≠ 0
+    bne normal_add           @ num2 ≠ 0
 
-    @; num2 és zero → retorna num1
+    @ num2 és 0 → retorna num1
     mov r0, r4
     b end_add
-@ -----------------------
-@ num1 i num2 són finits, no zero → extreure mantissa i exponent
+
+@ ----------- Tractament de nombres normals/denormals -----------
 
 normal_add:
-    @; Cal veure si num1 és normal o denormal
+    @ num1 → normal o denormal?
     ldr r9, =E9M22_MASK_EXP
     and r10, r4, r9
     cmp r10, #0
     beq num1_denorm
 
-    @; num1 normal → exponent i mantissa
+    @ num1 normal → obtenir mantissa i exponent
     ldr r9, =E9M22_MASK_FRAC
-    and r6, r4, r9          @; mant1 = FRAC(num1)
-    orr r6, r6, #E9M22_1_IMPLICIT_NORMAL @; mant1 amb 1 implícit
+    and r6, r4, r9
+    orr r6, r6, #E9M22_1_IMPLICIT_NORMAL
     mov r9, r4
-    lsr r9, r9, #E9M22_m    @; shift exponent cap a dreta
-    sub r9, r9, #E9M22_bias @; exponent real
-    mov r10, r9             @; exp1 = r10
+    lsr r9, r9, #E9M22_m
+    sub r9, r9, #E9M22_bias
+    mov r10, r9               @ exp1 → r10
     b get_num2
 
 num1_denorm:
-    @; num1 denormal
+    @ num1 denormal
     ldr r9, =E9M22_MASK_FRAC
-    and r6, r4, r9          @; mant1 = FRAC(num1)
-    ldr r10, =E9M22_Emin    @; exp1 = Emin
+    and r6, r4, r9
+    ldr r10, =E9M22_Emin      @ exp1 = Emin
 
 get_num2:
-    @; Cal veure si num2 és normal o denormal
+    @ num2 → normal o denormal?
     ldr r9, =E9M22_MASK_EXP
     and r11, r5, r9
     cmp r11, #0
     beq num2_denorm
 
-    @; num2 normal
+    @ num2 normal
     ldr r9, =E9M22_MASK_FRAC
     and r11, r5, r9
-    orr r11, r11, #E9M22_1_IMPLICIT_NORMAL  @; mant2
+    orr r11, r11, #E9M22_1_IMPLICIT_NORMAL
     mov r9, r5
     lsr r9, r9, #E9M22_m
     sub r9, r9, #E9M22_bias
-    mov r12, r9            @; exp2 = r12
+    mov r12, r9               @ exp2 → r12
     b align_exponents
 
 num2_denorm:
-    @; num2 denormal
+    @ num2 denormal
     ldr r9, =E9M22_MASK_FRAC
     and r11, r5, r9
-    ldr r12, =E9M22_Emin   @; exp2 = Emin
+    ldr r12, =E9M22_Emin      @ exp2 = Emin
 
-@ -----------------------
-@ Alinear mantisses si exponents diferents
+@ ----------- Alineació de mantisses -----------
 
 align_exponents:
     cmp r10, r12
-    beq do_addition
+    beq do_addition           @ exponents iguals → passar a suma
 
-    @; si exp1 < exp2 → desplaçar mant2
+    @ Si exp1 < exp2 → desplaçar mant2
     movlt r0, r12
-    sublt r0, r0, r10      @; dif_exp = exp2 - exp1
+    sublt r0, r0, r10         @ dif_exp = exp2 - exp1
     cmp r0, #E9M22_e
-    blt shift_mant2_left    @; sinò: cas complex
+    blt shift_mant2_left
     mov r1, #E9M22_e - 1
-    lsl r11, r11, r1       @; mant2 <<= (e-1)
+    lsl r11, r11, r1
     sub r12, r12, r1
     sub r0, r12, r10
-    lsr r6, r6, r0         @; mant1 >>= dif_exp
+    lsr r6, r6, r0
     add r10, r10, r0
     b do_addition
 
@@ -224,60 +236,50 @@ shift_mant2_left:
     sub r12, r12, r0
     b do_addition
 
-@; Cas contrari: exp1 > exp2
-    @; Mateix codi però intercanviant mant1 i mant2
-    @; (segueix a la següent part)
-@ -----------------------
-@ Fer la suma de mantisses (considerant signe)
+@ Cas contrari: exp1 > exp2 → (tractament simètric, intercanviant mantisses)
+
+@ ----------- Suma de mantisses -----------
 
 do_addition:
-    @; Si signes diferents → convertir un operand a negatiu (Ca2)
     cmp r7, r8
     beq same_sign
 
-    @; Són diferents → aplicar negatiu a qui toca
-    @; if (num1 < 0) → mant1 = -mant1
+    @ Si signes diferents → negam una mantissa
     tst r7, r7
-    rsbne r6, r6, #0    @; mant1 = -mant1 (r6)
-    rsbeq r11, r11, #0  @; mant2 = -mant2 (r11)
+    rsbne r6, r6, #0
+    rsbeq r11, r11, #0
 
 same_sign:
-    @; mant_suma = mant1 + mant2
-    add r0, r6, r11
+    add r0, r6, r11           @ mantissa suma
 
-    @; Si el resultat és negatiu → fer valor absolut (mant_suma = -mant_suma)
+    @ Si resultat negatiu → convertir a valor absolut
     cmp r0, #0
     bge mantissa_ok
     rsb r0, r0, #0
 
 mantissa_ok:
-    @; Calcular signe del resultat:
-    @; if (signe1 == signe2 || abs(num1) ≥ abs(num2)) → signe1
+    @ Calcular signe del resultat
     cmp r7, r8
-    beq signe1_ok       @; mateix signe → OK
+    beq signe1_ok
 
-    @; comparar magnituds: abs(num1) ≥ abs(num2) ?
+    @ comparar magnituds
     mov r1, r4
     mov r2, r5
     bic r1, r1, #E9M22_MASK_SIGN
     bic r2, r2, #E9M22_MASK_SIGN
     cmp r1, r2
-    movge r9, r7        @; signe_suma = signe1
-    movlt r9, r8        @; signe_suma = signe2
+    movge r9, r7
+    movlt r9, r8
     b call_normalize
 
 signe1_ok:
     mov r9, r7
 
-@ -----------------------
-@ Cridar a normalize_and_round: 
-@ r0 = mantissa suma
-@ r1 = exponent (exp1 = exp2, ja alineats)
-@ r2 = signe
+@ ----------- Normalització i arrodoniment -----------
 
 call_normalize:
-    mov r1, r10     @; exp_suma = exp1
-    mov r2, r9      @; signe_suma
+    mov r1, r10
+    mov r2, r9
     bl E9M22_normalize_and_round_s
 
 return_nan1:
@@ -288,22 +290,25 @@ return_nan2:
     mov r0, r5
     b end_add
 
-
 end_add:
-    pop {r4-r11, pc}
+    pop {r4-r11, pc}         @ Retornem de la funció
+
+
 @; E9M22_sub_s(): calcula num1 - num2 (coma flotant E9M22)
+
+
 .global E9M22_sub_s
 E9M22_sub_s:
-    push {lr}
+    push {lr}                        @ Guardem l'enllaç de retorn
 
-    @; Negar num2: fer xor amb E9M22_MASK_SIGN
-    ldr r2, =E9M22_MASK_SIGN
-    eor r1, r1, r2      @; num2negat = num2 ^ SIGN
+    @ Neguem num2: canviem el bit de signe
+    ldr r2, =E9M22_MASK_SIGN         @ Carreguem la màscara del bit de signe
+    eor r1, r1, r2                   @ num2 = num2 XOR SIGN → canviem signe
 
-    @; Cridar a add amb num1 i -num2
+    @ Cridem a la funció de suma amb num1 i -num2
     bl E9M22_add_s
 
-    pop {pc}
+    pop {pc}                         @ Retornem
 @; E9M22_neg_s(): canvia el signe (nega) de num
 .global E9M22_neg_s
 E9M22_neg_s:
@@ -314,6 +319,8 @@ E9M22_neg_s:
 
     pop {pc}
 @; E9M22_abs_s(): valor absolut de num
+
+
 .global E9M22_abs_s
 E9M22_abs_s:
     push {lr}
@@ -323,6 +330,8 @@ E9M22_abs_s:
 
     pop {pc}
 @; E9M22_are_eq_s(): retorna 1 si num1 == num2, incloent +0 == -0
+
+
 .global E9M22_are_eq_s
 E9M22_are_eq_s:
     push {r2, r3, lr}
@@ -371,6 +380,8 @@ E9M22_are_eq_s:
 .end_eq:
     pop {r2, r3, pc}
 @; E9M22_are_unordered_s(): retorna 1 si num1 o num2 són NaN
+
+
 .global E9M22_are_unordered_s
 E9M22_are_unordered_s:
     push {r2, r3, lr}
@@ -407,21 +418,23 @@ E9M22_are_unordered_s:
 .end_unordered:
     pop {r2, r3, pc}
 @; E9M22_mul_s(): calcula num1 × num2 (coma flotant E9M22)
+
+
 .global E9M22_mul_s
 E9M22_mul_s:
-    push {r4-r11, lr}
+    push {r4-r11, lr}              @ Guardem els registres de treball i el retorn
 
-    mov r4, r0      @; r4 = num1
-    mov r5, r1      @; r5 = num2
+    mov r4, r0                     @ r4 = num1
+    mov r5, r1                     @ r5 = num2
 
-    @; Calcular signe del producte: signe1 ^ signe2
+    @ Calcular el signe del producte: signe1 XOR signe2
     ldr r6, =E9M22_MASK_SIGN
-    and r7, r4, r6      @; signe1 → r7
-    and r8, r5, r6      @; signe2 → r8
-    eor r9, r7, r8      @; signe_prod → r9
+    and r7, r4, r6                 @ signe1 → r7
+    and r8, r5, r6                 @ signe2 → r8
+    eor r9, r7, r8                 @ signe_prod → r9
 
-    @; -------------------------
-    @; Tractar NaNs
+    @ -------------------------
+    @ Tractament de NaNs
 
     ldr r6, =E9M22_MASK_EXP
     and r0, r4, r6
@@ -430,7 +443,7 @@ E9M22_mul_s:
     ldr r6, =E9M22_MASK_FRAC
     and r0, r4, r6
     cmp r0, #0
-    bne .return_nan1
+    bne .return_nan1              @ num1 és NaN
 
 .check_nan2:
     ldr r6, =E9M22_MASK_EXP
@@ -440,7 +453,7 @@ E9M22_mul_s:
     ldr r6, =E9M22_MASK_FRAC
     and r0, r5, r6
     cmp r0, #0
-    bne .return_nan2
+    bne .return_nan2              @ num2 és NaN
 
 .return_nan1:
     mov r0, r4
@@ -450,121 +463,118 @@ E9M22_mul_s:
     mov r0, r5
     b .end_mul
 
-@; -------------------------
-@; Tractar ∞ × 0 → NaN, ∞ × x → ∞
+    @ -------------------------
+    @ Tractament ∞ × 0 → NaN, ∞ × x → ∞
 
 .check_inf_zero:
     ldr r6, =E9M22_MASK_EXP
     and r0, r4, r6
     cmp r0, r6
-    bne .check_inf_num2
+    bne .check_inf_num2          @ num1 no és ∞
 
-    @; num1 és ∞
+    @ num1 és ∞
     ldr r6, =E9M22_MASK_EXP | E9M22_MASK_FRAC
     and r1, r5, r6
     cmp r1, #0
-    moveq r0, r9         @; signe_prod
-	ldreq r1, =E9M22_qNAN
-	orreq r0, r0, r1
+    moveq r0, r9
+    ldreq r1, =E9M22_qNAN
+    orreq r0, r0, r1             @ ∞ × 0 → NaN
     movne r0, r9
-   ldrne r1, =E9M22_INF_POS
-	orrne r0, r0, r1
-
+    ldrne r1, =E9M22_INF_POS
+    orrne r0, r0, r1             @ ∞ × x → ∞
     b .end_mul
 
 .check_inf_num2:
     ldr r6, =E9M22_MASK_EXP
     and r0, r5, r6
     cmp r0, r6
-    bne .check_zeros
+    bne .check_zeros             @ num2 no és ∞
 
-    @; num2 és ∞
+    @ num2 és ∞
     ldr r6, =E9M22_MASK_EXP | E9M22_MASK_FRAC
     and r1, r4, r6
     cmp r1, #0
     moveq r0, r9
-	ldreq r1, =E9M22_qNAN
-
-	orreq r0, r0, r1
-
+    ldreq r1, =E9M22_qNAN
+    orreq r0, r0, r1             @ 0 × ∞ → NaN
     movne r0, r9
-  ldrne r1, =E9M22_INF_POS
-	orrne r0, r0, r1
-
+    ldrne r1, =E9M22_INF_POS
+    orrne r0, r0, r1             @ x × ∞ → ∞
     b .end_mul
 
-@; -------------------------
-@; Tractar zeros normals → retorna ±0
+    @ -------------------------
+    @ Tractament de zeros normals → retorna ±0
+
 .check_zeros:
     ldr r6, =E9M22_MASK_EXP | E9M22_MASK_FRAC
     and r0, r4, r6
     cmp r0, #0
-    moveq r0, r9         @; signe_prod com a resultat
+    moveq r0, r9                 @ signe del resultat
     beq .end_mul
 
     and r0, r5, r6
     cmp r0, #0
     moveq r0, r9
     beq .end_mul
-@ -------------------------
-@ Extracció d’exponents i mantisses
+
+    @ -------------------------
+    @ Extracció d’exponents i mantisses
 
 .extract_mant_exp:
-    @; num1
+    @ num1
     ldr r6, =E9M22_MASK_EXP
     and r0, r4, r6
     cmp r0, #0
     beq .denorm1
 
-    @; num1 normal
+    @ num1 normalitzat
     lsr r6, r0, #E9M22_m
-    sub r6, r6, #E9M22_bias     @; exp1
+    sub r6, r6, #E9M22_bias         @ exp1
     ldr r0, =E9M22_MASK_FRAC
     and r1, r4, r0
-    orr r1, r1, #E9M22_1_IMPLICIT_NORMAL @; mant1
+    orr r1, r1, #E9M22_1_IMPLICIT_NORMAL @ mant1
     b .done_num1
 
 .denorm1:
     ldr r6, =E9M22_Emin
     ldr r0, =E9M22_MASK_FRAC
-    and r1, r4, r0              @; mant1
+    and r1, r4, r0                  @ mant1 per denormalitzat
 
 .done_num1:
-    mov r10, r6     @; exp1 → r10
-    mov r6, r1      @; mant1 → r6
+    mov r10, r6                     @ exp1 → r10
+    mov r6, r1                      @ mant1 → r6
 
-    @; num2
+    @ num2
     ldr r0, =E9M22_MASK_EXP
     and r1, r5, r0
     cmp r1, #0
     beq .denorm2
 
     lsr r1, r1, #E9M22_m
-    sub r1, r1, #E9M22_bias     @; exp2
+    sub r1, r1, #E9M22_bias         @ exp2
     ldr r0, =E9M22_MASK_FRAC
     and r2, r5, r0
-    orr r2, r2, #E9M22_1_IMPLICIT_NORMAL @; mant2
+    orr r2, r2, #E9M22_1_IMPLICIT_NORMAL @ mant2
     b .done_num2
 
 .denorm2:
     ldr r1, =E9M22_Emin
     ldr r0, =E9M22_MASK_FRAC
-    and r2, r5, r0
+    and r2, r5, r0                  @ mant2 per denormalitzat
 
 .done_num2:
-    mov r11, r1     @; exp2 → r11
-    mov r7, r2      @; mant2 → r7
+    mov r11, r1                     @ exp2 → r11
+    mov r7, r2                      @ mant2 → r7
 
-@ -------------------------
-@ Eliminar zeros per la dreta
+    @ -------------------------
+    @ Eliminar zeros finals per optimitzar precisió
 
-    @; count_trailing_zeros(mant1)
     mov r0, r6
     bl count_trailing_zeros_s
     cmp r0, #0
     beq .mant2_trail
-    lsr r6, r6, r0      @; mant1 >>= n
-    add r10, r10, r0    @; exp1 += n
+    lsr r6, r6, r0
+    add r10, r10, r0
 
 .mant2_trail:
     mov r0, r7
@@ -573,57 +583,57 @@ E9M22_mul_s:
     beq .do_product
     lsr r7, r7, r0
     add r11, r11, r0
+
 .do_product:
-    @; r6 = mant1, r7 = mant2
     mov r0, r6
     mov r1, r7
-    bl umul32x32_2x32      @; retorna r0=prod64lo, r1=prod64hi
+    bl umul32x32_2x32               @ r0=prod64lo, r1=prod64hi
 
-    mov r2, r0      @; prod64lo
-    mov r3, r1      @; prod64hi
+    mov r2, r0
+    mov r3, r1
 
-    @; Calcular exp_prod = exp1 + exp2 - E9M22_m
-    add r4, r10, r11       @; exp1 + exp2
-    sub r4, r4, #E9M22_m   @; exp_prod → r4
+    @ Calcular exponent del producte
+    add r4, r10, r11
+    sub r4, r4, #E9M22_m            @ exp_prod
 
-    @; Si prod64hi != 0, necessitem normalitzar amb CLZ
     cmp r3, #0
     beq .no_shift
 
     mov r0, r3
-    bl count_leading_zeros_s   @; retorna a r0 → num_leading_zeros
-    rsb r5, r0, #32            @; despl = 32 - num_leading_zeros
+    bl count_leading_zeros_s
+    rsb r5, r0, #32                 @ despl = 32 - clz
 
-    @; Calcular sticky bit
+    @ Calcular sticky bit
     mov r1, #1
     lsl r1, r1, r5
-    sub r1, r1, #1             @; mask_sticky = (1<<despl) - 1
-    and r1, r2, r1             @; prod64lo & mask_sticky
+    sub r1, r1, #1
+    and r1, r2, r1
     cmp r1, #0
     moveq r1, #0
-    movne r1, #1               @; sticky = 1 si hi ha bits perduts
+    movne r1, #1
 
-    @; Construir mant_prod
-    lsl r0, r3, r0             @; prod64hi << lz
-    lsr r5, r2, r5             @; prod64lo >> despl
-    orr r0, r0, r5             @; mant_prod = (hi << lz) | (lo >> despl)
-    orr r0, r0, r1             @; afegir sticky
+    @ Construir mant_prod
+    lsl r0, r3, r0
+    lsr r5, r2, r5
+    orr r0, r0, r5
+    orr r0, r0, r1
 
-    add r4, r4, r5             @; ajustar exponent += despl
+    add r4, r4, r5                  @ ajustem exponent
+
     b .normalize
 
 .no_shift:
-    mov r0, r2                @; mant_prod = prod64lo
+    mov r0, r2                      @ mant_prod
 
 .normalize:
-    mov r1, r4                @; exp_prod
-    mov r2, r9                @; signe_prod
+    mov r1, r4                      @ exponent del producte
+    mov r2, r9                      @ signe del producte
     bl E9M22_normalize_and_round_s
 
 .end_mul:
-    pop {r4-r11, pc}
-	
-	.data
+    pop {r4-r11, pc}               @ Restaurar i retornar
+
+.data
 .align 2
 
 E9M22_qNAN:      .word 0x7FC00000
