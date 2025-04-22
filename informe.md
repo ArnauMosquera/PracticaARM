@@ -1,4 +1,5 @@
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 # **Informe de la Pràctica de Fundaments de Computadors**
 
 **Nom de l’estudiant:**  
@@ -79,6 +80,8 @@ Fragments de codi ARM rellevants amb comentaris. Explica:
 ; Exemple de rutina de conversió
 ; Fórmula: F = (9 / 5) * C + 32
 =======
+=======
+>>>>>>> Stashed changes
 # Informe de la Pràctica de Fundaments de Computadors
 
 **Nom de l'estudiant:** [El teu nom]  
@@ -160,5 +163,9 @@ Durant la implementació, es van identificar diversos reptes que es van resoldre
 
 ### Conclusió
 
+<<<<<<< Updated upstream
+La fase 1 de la pràctica ha sigut completada amb èxit. Totes les funcions de conversió i càlcul de estadístiques es van implementar correctament, i els resultats obtinguts durant les proves han sigut els esperats. La gestió de valors erronis es va realitzar de manera eficient, i els càlculs de màxim, mínim i mitjana es van dur a terme amb èxit. Aquesta fase ha servit com a base per a la fase següent del projecte, ja que les funcions implementades seran integrades amb altres parts del sistema per a continuar amb el desenvolupament de la pràctica.
+>>>>>>> Stashed changes
+=======
 La fase 1 de la pràctica ha sigut completada amb èxit. Totes les funcions de conversió i càlcul de estadístiques es van implementar correctament, i els resultats obtinguts durant les proves han sigut els esperats. La gestió de valors erronis es va realitzar de manera eficient, i els càlculs de màxim, mínim i mitjana es van dur a terme amb èxit. Aquesta fase ha servit com a base per a la fase següent del projecte, ja que les funcions implementades seran integrades amb altres parts del sistema per a continuar amb el desenvolupament de la pràctica.
 >>>>>>> Stashed changes
