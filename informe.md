@@ -10,25 +10,25 @@
 
 ## **Índex**
 
-1. [1_celsfahr_E9M22](#1_celsfahr_E9M22)  
-    1.1 [Especificacions](#especificacions)
-    - 1.1.1 [E9M22_add](#E9M22_add)
-    - 1.1.2 [E9M22_sub](#e9m22_sub)
-    - 1.1.3 [E9M22_neg](#e9m22_neg)
-    - 1.1.4 [E9M22_abs](#e9m22_abs)
-    - 1.1.5 [E9M22_mul_s](#e9m22_mul_s)
-    - 1.1.6 [E9M22_are_eq](#e9m22_are_eq)
-    - 1.1.7 [E9M22_are_unordered_s](#e9m22_are_unordered_s) 
+1. [1_celsfahr_E9M22] 
+    1.1 [Especificacions]
+    - 1.1.1 [E9M22_add]
+    - 1.1.2 [E9M22_sub]
+    - 1.1.3 [E9M22_neg]
+    - 1.1.4 [E9M22_abs]
+    - 1.1.5 [E9M22_mul_s]
+    - 1.1.6 [E9M22_are_eq]
+    - 1.1.7 [E9M22_are_unordered_s]
     
-    1.2 [Disseny](#12-disseny)  
-    1.3 [Implementació](#13-implementació)  
-    1.4 [Joc de proves ampliat](#14-joc-de-proves-ampliat)
+    1.2 [Disseny]
+    1.3 [Implementació]
+    1.4 [Joc de proves ampliat]
 
-3. [2_GeoTemp](#2_geotemp)  
-    2.1 [Especificacions](#21-especificacions)  
-    2.2 [Disseny](#22-disseny)  
-    2.3 [Implementació](#23-implementació)  
-    2.4 [Joc de proves ampliat](#24-joc-de-proves-ampliat)
+2. [2_GeoTemp] 
+    2.1 [Especificacions]
+    2.2 [Disseny] 
+    2.3 [Implementació]
+    2.4 [Joc de proves ampliat]
 
 ---
 
