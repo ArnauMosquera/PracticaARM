@@ -1,9 +1,9 @@
-# **Informe de la Pràctica de Fundaments de Computadors**
+# **Informe de la Pràctica de Fundaments de Computadors
 
-**Albert Martí i Arnau Mosquera**  
-**Assignatura:** Fundaments de Computadors  
-**Pràctica:** Conversió de codi C a ARM - Anàlisi i processament de temperatures  
-**Data de lliurament:** 22 d’abril de 2025
+**Albert Martí i Arnau Mosquera**
+**Assignatura:**Fundaments de Computadors  
+**Pràctica:**Conversió de codi C a ARM - Anàlisi i processament de temperatures  
+**Data de lliurament:**:22 d’abril de 2025
 
 ---
 
@@ -55,11 +55,11 @@
 - 2.3.2 `avgmaxmin_month`
 ---
 
-## **1_celsfahr_E9M22**
+## 1_celsfahr_E9M22
 
-## **1.1 Especificació de les funcions bàsiques E9M22**
+## 1.1 Especificació de les funcions bàsiques E9M22
 
-### **1.1.1 E9M22_add**
+### 1.1.1 E9M22_add
 
 Aquesta funció rep dos nombres en format E9M22 (valors de 32 bits amb 1 bit de signe, 9 bits d’exponent i 22 bits de mantissa), i retorna la seva suma també en format E9M22. Es fa una normalització prèvia per alinear els exponents, es sumen les mantisses i posteriorment es renormalitza el resultat.
 
@@ -71,7 +71,7 @@ Aquesta funció rep dos nombres en format E9M22 (valors de 32 bits amb 1 bit de 
 
 ---
 
-### **1.1.2 E9M22_sub**
+### 1.1.2 E9M22_sub
 
 Realitza la resta entre dos valors E9M22. Internament, inverteix el signe del segon operand i reutilitza l’algorisme de la suma (`E9M22_add`).
 
@@ -83,7 +83,7 @@ Realitza la resta entre dos valors E9M22. Internament, inverteix el signe del se
 
 ---
 
-### **1.1.3 E9M22_mul**
+### 1.1.3 E9M22_mul
 
 Multiplica dos valors E9M22. La funció calcula el signe resultant, suma els exponents, i multiplica les mantisses amb el desplaçament adequat per mantenir la precisió. El resultat es normalitza.
 
@@ -95,7 +95,7 @@ Multiplica dos valors E9M22. La funció calcula el signe resultant, suma els exp
 
 ---
 
-### **1.1.4 E9M22_normalize_and_round_s**
+### 1.1.4 E9M22_normalize_and_round_s
 
 Aquesta funció ajusta un valor E9M22 perquè estigui normalitzat (el bit més significatiu de la mantissa és 1) i realitza l’arrodoniment segons els bits descartats.
 
@@ -107,9 +107,9 @@ Aquesta funció ajusta un valor E9M22 perquè estigui normalitzat (el bit més s
 
 ---
 
-### **1.1.5 count_trailing_zeros_s**
+### 1.1.5 count_trailing_zeros_s
 
-Compta quants bits a zero hi ha consecutius des del **bit menys significatiu cap amunt** dins d’un registre de 32 bits.
+Compta quants bits a zero hi ha consecutius des del **bit menys significatiu cap amunt**dins d’un registre de 32 bits.
 
 - **Paràmetres**:  
   - `r0`: valor d’entrada
@@ -118,9 +118,9 @@ Compta quants bits a zero hi ha consecutius des del **bit menys significatiu cap
 
 ---
 
-### **1.1.6 count_leading_zeros_s**
+### 1.1.6 count_leading_zeros_s
 
-Compta quants bits a zero hi ha consecutius des del **bit més significatiu cap avall** dins d’un registre de 32 bits.
+Compta quants bits a zero hi ha consecutius des del **bit més significatiu cap avall**dins d’un registre de 32 bits.
 
 - **Paràmetres**:  
   - `r0`: valor d’entrada
@@ -129,7 +129,7 @@ Compta quants bits a zero hi ha consecutius des del **bit més significatiu cap 
 
 ---
 
-### **1.1.7 E9M22_neg**
+### 1.1.7 E9M22_neg
 
 Canvia el signe d’un valor en format E9M22. Només cal invertir el bit de signe.
 
@@ -140,7 +140,7 @@ Canvia el signe d’un valor en format E9M22. Només cal invertir el bit de sign
 
 ---
 
-### **1.1.8 E9M22_abs**
+### 1.1.8 E9M22_abs
 
 Retorna el valor absolut d’un nombre E9M22. Elimina el signe (posa el bit de signe a 0).
 
@@ -151,7 +151,7 @@ Retorna el valor absolut d’un nombre E9M22. Elimina el signe (posa el bit de s
 
 ---
 
-### **1.1.9 E9M22_are_eq_s**
+### 1.1.9 E9M22_are_eq_s
 
 Comprova si dos valors E9M22 són iguals. Té en compte el cas especial de NaN, que mai és igual a res (ni tan sols a ell mateix).
 
@@ -163,7 +163,7 @@ Comprova si dos valors E9M22 són iguals. Té en compte el cas especial de NaN, 
 
 ---
 
-### **1.1.10 E9M22_are_unordered_s**
+### 1.1.10 E9M22_are_unordered_s
 
 Retorna 1 si algun dels dos operands és NaN. Aquest cas indica que no es poden comparar (unordered en terminologia IEEE-754).
 
@@ -177,19 +177,19 @@ Retorna 1 si algun dels dos operands és NaN. Aquest cas indica que no es poden 
 
 ## 1.2 Disseny de les funcions bàsiques E9M22
 
-### **1.2.1 E9M22_add**
+### 1.2.1 E9M22_add
 
 El disseny segueix l’algorisme clàssic de suma de nombres en coma flotant:
 1. **Extracció de camps**: Es separen el signe, exponent i mantissa dels dos operandes.
 2. **Alineació d’exponents**: Si els exponents són diferents, es desplaça cap a la dreta la mantissa del nombre amb exponent més petit, per fer coincidir els exponents.
 3. **Operació de mantisses**: Si els signes són iguals, es sumen les mantisses. Si són diferents, es resten, i es conserva el signe del nombre més gran.
-4. **Normalització**: Es desplaça la mantissa resultant cap a l’esquerra (si hi ha zeros a l’inici) i s’ajusta l’exponent en conseqüència.
-5. **Arrodoniment**: Es tenen en compte els bits descartats per aplicar arrodoniment correcte.
-6. **Recomposició**: Finalment es torna a empaquetar el signe, l’exponent i la mantissa en format E9M22.
+4. Normalització: Es desplaça la mantissa resultant cap a l’esquerra (si hi ha zeros a l’inici) i s’ajusta l’exponent en conseqüència.
+5. Arrodoniment: Es tenen en compte els bits descartats per aplicar arrodoniment correcte.
+6. Recomposició: Finalment es torna a empaquetar el signe, l’exponent i la mantissa en format E9M22.
 
 ---
 
-### **1.2.2 E9M22_sub**
+### 1.2.2 E9M22_sub
 
 Es basa en la suma, però amb el signe del segon operando invertit:
 - Es canvia el bit de signe del segon operando (`B`), convertint la resta en una suma: `A - B = A + (-B)`.
@@ -197,30 +197,30 @@ Es basa en la suma, però amb el signe del segon operando invertit:
 
 ---
 
-### **1.2.3 E9M22_mul**
+### 1.2.3 E9M22_mul
 
 Per multiplicar dos nombres E9M22:
 1. **Extracció de camps**: Signe, exponent i mantissa dels dos operandes.
 2. **Càlcul del signe final**: S’usa XOR entre els signes.
 3. **Exponent resultant**: Es sumen els exponents i es resta el bias (511).
 4. **Multiplicació de mantisses**: S’inclou el bit implícit (1) abans de multiplicar les mantisses.
-5. **Normalització**: Es fa un desplaçament si cal, i es corregeix l’exponent.
+5. Normalització: Es fa un desplaçament si cal, i es corregeix l’exponent.
 6. **Arrodoniment i saturació**: Si es sobrepassa el rang, es genera +∞ o -∞.
-7. **Recomposició**: Es generen els bits finals del format E9M22.
+7. Recomposició: Es generen els bits finals del format E9M22.
 
 ---
 
-### **1.2.4 E9M22_normalize_and_round_s**
+### 1.2.4 E9M22_normalize_and_round_s
 
 Aquesta funció ajusta una mantissa i exponent després d’una operació:
-1. **Normalització**: Es detecta el primer bit 1 per saber quants llocs s’ha de desplaçar la mantissa.
+1. Normalització: Es detecta el primer bit 1 per saber quants llocs s’ha de desplaçar la mantissa.
 2. **Ajust de l’exponent**: Cada desplaçament a l’esquerra incrementa l’exponent.
-3. **Arrodoniment**: Es fa servir l’últim bit descartat i el següent per decidir si s’arrodoneix cap amunt.
+3. Arrodoniment: Es fa servir l’últim bit descartat i el següent per decidir si s’arrodoneix cap amunt.
 4. **Tractament de casos límit**: Es gestiona el desbordament d’exponent i la generació de zero.
 
 ---
 
-### **1.2.5 count_trailing_zeros_s**
+### 1.2.5 count_trailing_zeros_s
 
 Implementa un algorisme per comptar zeros consecutius des del bit menys significatiu (LSB) cap a l’esquerra:
 - Es fa un bucle que desplaça cap a la dreta fins que troba un 1.
@@ -228,7 +228,7 @@ Implementa un algorisme per comptar zeros consecutius des del bit menys signific
 
 ---
 
-### **1.2.6 count_leading_zeros_s**
+### 1.2.6 count_leading_zeros_s
 
 Utilitza la instrucció `clz` per comptar quants zeros hi ha des del MSB fins al primer bit 1:
 - És útil per normalitzar mantisses.
@@ -236,7 +236,7 @@ Utilitza la instrucció `clz` per comptar quants zeros hi ha des del MSB fins al
 
 ---
 
-### **1.2.7 E9M22_neg**
+### 1.2.7 E9M22_neg
 
 Inverteix el signe d’un nombre E9M22:
 - Es fa un XOR amb `0x80000000`, que només modifica el bit més significatiu (bit 31).
@@ -244,7 +244,7 @@ Inverteix el signe d’un nombre E9M22:
 
 ---
 
-### **1.2.8 E9M22_abs**
+### 1.2.8 E9M22_abs
 
 Retorna el valor absolut:
 - Es posa el bit de signe a 0 fent un AND amb `0x7FFFFFFF`.
@@ -252,7 +252,7 @@ Retorna el valor absolut:
 
 ---
 
-### **1.2.9 E9M22_are_eq_s**
+### 1.2.9 E9M22_are_eq_s
 
 Compara si dos nombres E9M22 són iguals:
 1. **Gestió de NaN**: Si qualsevol operand és NaN, retorna 0.
@@ -260,7 +260,7 @@ Compara si dos nombres E9M22 són iguals:
 
 ---
 
-### **1.2.10 E9M22_are_unordered_s**
+### 1.2.10 E9M22_are_unordered_s
 
 Determina si qualsevol dels dos operands és NaN:
 - Comprova si l’exponent és tot uns (`0x1FF`) i la mantissa no és zero.
@@ -268,7 +268,7 @@ Determina si qualsevol dels dos operands és NaN:
 
 ---
 
-### **1.3 Implementació**
+### 1.3 Implementació
 
 Fragments de codi ARM rellevants amb comentaris. Explica:
 
@@ -276,7 +276,7 @@ Fragments de codi ARM rellevants amb comentaris. Explica:
 - Com s’han fet les operacions aritmètiques i lògiques  
 - Com s’ha controlat el flux i gestionat els registres
 
-#### **1.1.1 E9M22_add**
+#### 1.1.1 E9M22_add
 
 ```armasm
 .global E9M22_add_s
@@ -499,7 +499,7 @@ return_nan2:
 end_add:
     pop {r4-r11, pc}         @ Retornem de la funció
 ```
-#### **1.1.2 E9M22_sub**
+#### 1.1.2 E9M22_sub
 
 ```armasm
 .global E9M22_sub_s
@@ -516,7 +516,7 @@ E9M22_sub_s:
     pop {pc}                         @ Retornem
 ```
 
-#### **1.1.3 E9M22_mul**
+#### 1.1.3 E9M22_mul
 
 ```armasm
 
@@ -737,7 +737,7 @@ E9M22_mul_s:
 .align 2
 
 ```
-#### **1.1.4 E9M22_normalize_and_round_s**
+#### 1.1.4 E9M22_normalize_and_round_s
 
 ```armasm
 .global E9M22_normalize_and_round_s
@@ -760,7 +760,7 @@ E9M22_normalize_and_round_s:
 
 ```
 
-#### **1.1.5 count_trailing_zeros_s**
+#### 1.1.5 count_trailing_zeros_s
 
 ```armasm
 .global count_trailing_zeros_s
@@ -780,7 +780,7 @@ count_trailing_zeros_s:
     pop {pc}               @ Recuperem l'adreça de retorn i retornem
 ```
 
-#### **1.1.6 ⁠count_leading_zeros_s**
+#### 1.1.6 ⁠count_leading_zeros_s
 
 ```armasm
 .global count_leading_zeros_s
@@ -803,7 +803,7 @@ count_leading_zeros_s:
     pop {pc}                @ Recuperem l'adreça de retorn
 ```
 
-#### **1.1.7 E9M22_neg**
+#### 1.1.7 E9M22_neg
  ```armasm
  .global E9M22_neg_s
 E9M22_neg_s:
@@ -816,7 +816,7 @@ E9M22_neg_s:
 
 @; E9M22_abs_s(): valor absolut de num
 ```
-#### **1.1.8 E9M22_abs**
+#### 1.1.8 E9M22_abs
 
 ```armasm
 .global E9M22_abs_s
@@ -829,7 +829,7 @@ E9M22_abs_s:
     pop {pc}                     @ Recuperem el registre de retorn (pc) i tornem a la funció cridant
 ```
 
-#### **1.1.9 E9M22_are_eq_s**
+#### 1.1.9 E9M22_are_eq_s
 
 ```armasm
 .global E9M22_are_eq_s
@@ -879,7 +879,7 @@ E9M22_are_eq_s:
 .end_eq:
     pop {r2, r3, pc}           @ Recuperem els registres i tornem a la funció cridant
 ```
-#### **1.1.10 E9M22_are_unordered_s**
+#### 1.1.10 E9M22_are_unordered_s
 
 ```armasm
 .global E9M22_are_unordered_s
@@ -919,8 +919,242 @@ E9M22_are_unordered_s:
     pop {r2, r3, pc}           @ Recuperem els registres i tornem a la funció cridant
 ```
 
-## **2_GeoTemp**
+## 2_GeoTemp
 
-## **2.1 Especificació de les funcions de GeoTemp**
+## 2.1 Especificacions
 
-### **2.1.1 
+### 2.1.1 avgmaxmin_city
+
+- **Nom**:**`avgmaxmin_city`
+- **Objectiu**:**Calcular la temperatura mitjana, màxima i mínima d’una ciutat concreta al llarg dels 12 mesos de l’any.
+- **Paràmetresd'entrada**:
+  - `E9M22 temperatures[][]`: Matriu de temperatures (E9M22) de ciutats (files) i mesos (columnes).
+  - `int num_cities`: Nombre total de ciutats.
+  - `int city_index`: Índex de la ciutat sobre la qual es vol calcular les dades.
+- **Sortida**:
+  - `maxmin_t *result`: Estructura amb els valors calculats:
+    - `avg`: Temperatura mitjana anual.
+    - `max`: Temperatura màxima.
+    - `max_pos`: Mes de la màxima.
+    - `min`: Temperatura mínima.
+    - `min_pos`: Mes de la mínima.
+
+### 2.1.2 avgmaxmin_month
+
+- **Nom**:**`avgmaxmin_month`
+- **Objectiu**:**Calcular la temperatura mitjana, màxima i mínima d’un mes concret entre totes les ciutats disponibles.
+- **Paràmetresd'entrada**:
+  - `E9M22 temperatures[][]`: Matriu de temperatures (E9M22).
+  - `int num_cities`: Nombre total de ciutats.
+  - `int month_index`: Índex del mes a analitzar.
+- **Sortida**:
+  - `maxmin_t *result`: Estructura amb els valors calculats:
+    - `avg`: Temperatura mitjana del mes.
+    - `max`: Temperatura màxima registrada.
+    - `max_pos`: Índex de la ciutat amb la màxima.
+    - `min`: Temperatura mínima registrada.
+    - `min_pos`: Índex de la ciutat amb la mínima.
+
+---
+
+## 2.2 Disseny
+
+### 2.2.1 avgmaxmin_city
+
+1. Inicialització:
+   - Assignar la temperatura del primer mes de la ciutat a `min`, `max`, i `sum`.
+   - Guardar posició inicial per `min_pos` i `max_pos` (habitualment 0).
+
+2. **Recorregut dels mesos (0–11)**:
+   - Per cada mes:
+     - Comparar la temperatura amb els valors `min` i `max`.
+     - Actualitzar `min`, `min_pos`, `max`, `max_pos` si escau.
+     - Afegir la temperatura a la suma total.
+
+3. **Càlcul de mitjana**:
+   - Dividir la suma acumulada entre 12 (nombre de mesos) amb la funció de divisió E9M22.
+
+4. Retorn:
+   - Escriure `avg`, `min`, `min_pos`, `max`, `max_pos` a la struct `maxmin_t`.
+
+### 2.2.2 avgmaxmin_month
+
+1. Inicialització:
+   - Assignar la temperatura de la primera ciutat al mes donat com a valor inicial per `min`, `max`, i `sum`.
+   - Inicialitzar `min_pos` i `max_pos` a 0.
+
+2. **Recorregut de ciutats (0–num_cities-1)**:
+   - Per cada ciutat:
+     - Accedir a la temperatura del mes.
+     - Comparar amb `min` i `max` i actualitzar valors i posicions si cal.
+     - Sumar la temperatura a la suma total.
+
+3. **Càlcul de mitjana**:
+   - Dividir la suma total entre `num_cities` amb la rutina de divisió E9M22.
+
+4. Retorn:
+   - Emmagatzemar `avg`, `min`, `min_pos`, `max`, `max_pos` a la struct `maxmin_t`.
+
+
+### 2.3 Implementació
+
+Fragments de codi ARM rellevants amb comentaris. Explica:
+
+- Com s’ha traduït el codi C a codi ARM  
+- Com s’han fet les operacions aritmètiques i lògiques  
+- Com s’ha controlat el flux i gestionat els registres
+
+#### 2.3.1 avgmaxmin_city
+```armasm
+.global avgmaxmin_city
+avgmaxmin_city:
+    push {r4-r10, lr}
+
+    mov r4, #1              @ i = 1
+    mov r9, #0              @ idmax = 0
+    mov r10, #0             @ idmin = 0
+
+    mov r5, #48             @ 12 columnes × 4 bytes = 48
+    mul r11, r2, r5         @ r11 = offset fila ciutat
+    add r11, r0, r11        @ r11 = &ttemp[id_city][0]
+
+    ldr r5, [r11]           @ avg = ttemp[id_city][0]
+    mov r6, r5              @ max = avg
+    mov r7, r5              @ min = avg
+
+loop_city:
+    cmp r4, #12
+    beq end_loop_city
+
+    mov r8, r4
+    lsl r8, r8, #2          @ offset columna i * 4
+    add r8, r11, r8         @ &ttemp[id_city][i]
+    ldr r8, [r8]            @ tvar = ttemp[id_city][i]
+
+    mov r0, r5              @ avg
+    mov r1, r8              @ tvar
+    bl E9M22_add
+    mov r5, r0              @ avg += tvar
+
+    mov r0, r8
+    mov r1, r6
+    bl E9M22_is_gt
+    cmp r0, #0
+    beq check_min_city
+    mov r6, r8              @ max = tvar
+    mov r9, r4              @ idmax = i
+
+check_min_city:
+    mov r0, r8
+    mov r1, r7
+    bl E9M22_is_lt
+    cmp r0, #0
+    beq next_city
+    mov r7, r8              @ min = tvar
+    mov r10, r4             @ idmin = i
+
+next_city:
+    add r4, r4, #1
+    b loop_city
+
+end_loop_city:
+    ldr r1, =0x40A00000     @ 12.0 en E9M22
+    mov r0, r5
+    bl E9M22_div
+    mov r5, r0              @ avg /= 12
+
+    str r7, [r3, #MM_TMINC]
+    str r6, [r3, #MM_TMAXC]
+
+    mov r0, r7
+    bl Celsius2Fahrenheit
+    str r0, [r3, #MM_TMINF]
+
+    mov r0, r6
+    bl Celsius2Fahrenheit
+    str r0, [r3, #MM_TMAXF]
+
+    strh r10, [r3, #MM_IDMIN]
+    strh r9, [r3, #MM_IDMAX]
+
+    mov r0, r5
+    pop {r4-r10, pc}
+```
+#### 2.3.2 avgmaxmin_month
+```armasm
+.global avgmaxmin_month
+avgmaxmin_month:
+    push {r4-r10, lr}
+
+    mov r4, #1              @ i = 1
+    mov r9, #0              @ idmax = 0
+    mov r10, #0             @ idmin = 0
+
+    lsl r11, r2, #2         @ offset columna = id_month * 4
+    add r6, r0, r11         @ &ttemp[0][id_month]
+    ldr r5, [r6]            @ avg = ttemp[0][id_month]
+    mov r6, r5              @ max = avg
+    mov r7, r5              @ min = avg
+
+loop_month:
+    cmp r4, r1              @ i < nrows
+    bge end_loop_month
+
+    mov r8, r4
+    mov r12, #48
+    mul r8, r8, r12         @ offset fila i * 48
+    add r8, r0, r8
+    add r8, r8, r11         @ &ttemp[i][id_month]
+    ldr r8, [r8]            @ tvar = ttemp[i][id_month]
+
+    mov r0, r5
+    mov r1, r8
+    bl E9M22_add
+    mov r5, r0
+
+    mov r0, r8
+    mov r1, r6
+    bl E9M22_is_gt
+    cmp r0, #0
+    beq check_min_month
+    mov r6, r8
+    mov r9, r4
+
+check_min_month:
+    mov r0, r8
+    mov r1, r7
+    bl E9M22_is_lt
+    cmp r0, #0
+    beq next_month
+    mov r7, r8
+    mov r10, r4
+
+next_month:
+    add r4, r4, #1
+    b loop_month
+
+end_loop_month:
+    mov r0, r1              @ nrows
+    bl int_to_E9M22
+    mov r1, r0              @ divisor
+    mov r0, r5              @ avg
+    bl E9M22_div
+    mov r5, r0              @ avg /= nrows
+
+    str r7, [r3, #MM_TMINC]
+    str r6, [r3, #MM_TMAXC]
+
+    mov r0, r7
+    bl Celsius2Fahrenheit
+    str r0, [r3, #MM_TMINF]
+
+    mov r0, r6
+    bl Celsius2Fahrenheit
+    str r0, [r3, #MM_TMAXF]
+
+    strh r10, [r3, #MM_IDMIN]
+    strh r9, [r3, #MM_IDMAX]
+
+    mov r0, r5
+    pop {r4-r10, pc}
+```
